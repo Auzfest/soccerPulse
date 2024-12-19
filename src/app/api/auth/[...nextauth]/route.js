@@ -6,6 +6,7 @@ AWS.config.update({ region: "us-east-2" });
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
