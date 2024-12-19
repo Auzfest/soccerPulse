@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import GameWidget from './gameWidget';
+import { getFixtures } from '../../footballapi';
 
 export default function GamesWidget({ teams, leagues }) {
   const [games, setGames] = useState([]);
@@ -20,6 +21,7 @@ export default function GamesWidget({ teams, leagues }) {
         const allGames = [];
         for (const league of leagues) {
           for (const team of teams) {
+            console.log('Fetching games for team:', team, 'in league:', league);
             const fixtures = await getFixtures({
               leagueId: league.id,
               teamId: team.id,

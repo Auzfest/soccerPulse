@@ -48,7 +48,7 @@ export async function POST(req, res) {
     const queryResult = await client.send(
       new QueryCommand({
         TableName: "Soccer_Pulse",
-        IndexName: "Email-index", // Assuming a GSI exists with Email as the key
+        IndexName: "Email-index",
         KeyConditionExpression: "Email = :email",
         ExpressionAttributeValues: {
           ":email": userEmail,
@@ -66,23 +66,55 @@ export async function POST(req, res) {
 
     const userID = queryResult.Items[0].ID;
     console.log("User ID:", userID);
-
-    const result = await client.send(new UpdateCommand({
-      TableName: "Soccer_Pulse",
-      Key: {
-        ID: userID
-      },
-      UpdateExpression: "SET #Favorites[0] = list_append(if_not_exists(#Favorites[0], :empty_list), :newItem)",
-      ExpressionAttributeNames: {
-        "#Favorites": "Favorites",
-      },
-      ExpressionAttributeValues: {
-        ":newItem": [newItem],
-        ":empty_list": []
-      },
-      ReturnValues: "UPDATED_NEW"
-    }));
-
+    if (newItem.teamId) {
+      newItem.teamId = String(newItem.teamId);
+      const leagueId = String(newItem.leagueId);
+      const teamId = String(newItem.teamId);
+      console.log("League and Team detected:", newItem);
+      result = await client.send(
+        new UpdateCommand({
+          TableName: "Soccer_Pulse",
+          Key: {
+            ID: userID,
+          },
+          UpdateExpression: "SET #Favorites[1] = list_append(if_not_exists(#Favorites[1], :empty_list), :newItem)",
+          ExpressionAttributeNames: {
+            "#Favorites": "Favorites",
+          },
+          ExpressionAttributeValues: {
+            ":newItem": [[leagueId, teamId]],
+            ":empty_list": [],
+          },
+          ReturnValues: "UPDATED_NEW",
+        })
+      );
+    } else if (newItem.leagueId && !newItem.teamId) {
+      console.log("Only League detected:", newItem);
+      const leagueId = String(newItem.leagueId);
+      result = await client.send(
+        new UpdateCommand({
+          TableName: "Soccer_Pulse",
+          Key: {
+            ID: userID,
+          },
+          UpdateExpression: "SET #Favorites[0] = list_append(if_not_exists(#Favorites[0], :empty_list), :newItem)",
+          ExpressionAttributeNames: {
+            "#Favorites": "Favorites",
+          },
+          ExpressionAttributeValues: {
+            ":newItem": [leagueId],
+            ":empty_list": [],
+          },
+          ReturnValues: "UPDATED_NEW",
+        })
+      );
+    } else {
+      console.error("Invalid newItem format");
+      return new Response(
+        JSON.stringify({ error: "Invalid newItem format" }),
+        { status: 400 }
+      );
+    }
     console.log("Update successful:", result);
     return new Response(JSON.stringify(result), { status: 200 });
   } catch (error) {

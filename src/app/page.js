@@ -17,9 +17,6 @@ export default function HomePage() {
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <Header />
-      {status === "loading" ? (
-        <p>Loading...</p>
-      ) : (
         <>
           <h1>Welcome to SoccerPulse</h1>
           <p>Your one-stop destination for all things soccer.</p>
@@ -35,7 +32,6 @@ export default function HomePage() {
             </a>
           </div>
         </>
-      )}
     </div>
   );
 }

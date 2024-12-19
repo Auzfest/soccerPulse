@@ -13,6 +13,7 @@ export default function TeamWidget({ leagueId, teamId }) {
         };
   
         try {
+          console.log(`Fetching data for League: ${leagueId}, Team: ${teamId}`);
           const data = await getSpecificTeam(leagueId, teamId);
           setTeamData(data); // Use the API response
           console.log(data);

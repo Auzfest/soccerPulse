@@ -36,8 +36,9 @@ export default function AccountHome() {
           let data1 = data[0].Favorites;
 
           const favoritesData = data[0].Favorites;
+          console.log("Favorites Data:", favoritesData);
 
-          const leagues = favoritesData[0]?.map(item => item.leagueId) || [];
+          const leagues = favoritesData[0]?.map(item => item) || [];
           const teams = data1[1]?.map((team) => ({
             leagueId: team[0], // League ID
             teamId: team[1],   // Team ID
@@ -105,11 +106,11 @@ export default function AccountHome() {
       )}
 
       <h1>Your Favorite Teams</h1>
-      {/* {favorites.teams.length > 0 ? (
+      {favorites.teams.length > 0 ? (
         <TeamsWidget teams={favorites.teams} />
       ) : (
         <p>No teams found</p>
-      )} */}
+      )}
 
       <h1>Upcoming Games</h1>
       {favorites.teams.length > 0 || favorites.leagues.length > 0 ? (
