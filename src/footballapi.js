@@ -133,9 +133,8 @@ export const getSpecificTeam = async (leagueId, teamId) => {
     }
 };
 
-export const getFixtures = async ({ leagueId, teamId, from, to, timezone = "Europe/London" }) => {
-    // Construct the URL in a single line
-    const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/fixtures?league=${leagueId}team=${teamId}&from=${from}&to=${to}&timezone=${timezone}`;
+export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
+    const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/fixtures?league=${leagueId}&season=2024&team=${teamId}&from=${from}&to=${to}&timezone=${timezone}`;
   
     const options = {
       method: "GET",

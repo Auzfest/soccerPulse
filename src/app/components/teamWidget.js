@@ -26,7 +26,19 @@ export default function TeamWidget({ leagueId, teamId }) {
     }, [leagueId, teamId]);
   
     if (!teamData) return <p>Loading team data...</p>;
-  
+    if (teamData.length === 0) {
+        return (
+          <div style={{
+            border: '1px solid #ccc',
+            borderRadius: '5px',
+            padding: '10px',
+            margin: '10px',
+            textAlign: 'center',
+          }}>
+            <p>Teams are unavailable at the moment. Please try again later.</p>
+          </div>
+        );
+      }
     return (
       <div style={{
         border: '1px solid #ccc',
@@ -35,13 +47,24 @@ export default function TeamWidget({ leagueId, teamId }) {
         margin: '10px',
         textAlign: 'center',
       }}>
-        <h3>{teamData.team.name}</h3>
+        {!teamData ? <p>Loading team data...</p> : (
+          <>
+            <h3>{teamData.team.name}</h3>
+            <img src={teamData.team.logo} alt={teamData.team.name} style={{ width: '50px', height: '50px' }} />
+            <p>League: {teamData.league.name}</p>
+            <p>Games Played: {teamData.fixtures.played.total}</p>
+            <p>Wins: {teamData.fixtures.wins.total}</p>
+            <p>Draws: {teamData.fixtures.draws.total}</p>
+            <p>Losses: {teamData.fixtures.loses.total}</p>
+          </>
+        )}
+        {/* <h3>{teamData.team.name}</h3>
         <img src={teamData.team.logo} alt={teamData.team.name} style={{ width: '50px', height: '50px' }} />
         <p>League: {teamData.league.name}</p>
         <p>Games Played: {teamData.fixtures.played.total}</p>
         <p>Wins: {teamData.fixtures.wins.total}</p>
         <p>Draws: {teamData.fixtures.draws.total}</p>
-        <p>Losses: {teamData.fixtures.loses.total}</p>
+        <p>Losses: {teamData.fixtures.loses.total}</p> */}
       </div>
     );
 }

@@ -11,11 +11,12 @@ export default function AccountHome() {
   const router = useRouter();
   const { data: session, status } = useSession();
   // const [favorites, setFavorites] = useState([]);
-  // const [currentIndex, setCurrentIndex] = useState(0); // Track current favorite
-  const [favorites, setFavorites] = useState({ leagues: [], teams: [] }); // Adjusted state structure
+  // const [currentIndex, setCurrentIndex] = useState(0); 
+  const [favorites, setFavorites] = useState({ leagues: [], teams: [] });
   const [currentIndex, setCurrentIndex] = useState({ leagues: 0, teams: 0 });
   const [isFetched, setIsFetched] = useState(false); // Flag to prevent infinite loop in useEffect
-
+  const [widgetQueue, setWidgetQueue] = useState([]);
+  const [currentWidgetIndex, setCurrentWidgetIndex] = useState(0);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -51,7 +52,7 @@ export default function AccountHome() {
             leagues,
             teams,
           });
-
+          setWidgetQueue([StandingsWidget, TeamsWidget, GamesWidget]);
           setIsFetched(true);
         }
         if (status === "unauthenticated") {
@@ -91,11 +92,24 @@ export default function AccountHome() {
     }));
   };
 
+  useEffect(() => {
+    const loadWidget = async () => {
+      if (currentWidgetIndex < widgetQueue.length) {
+        // Wait for a timeout or previous widget's API call
+        const currentWidget = widgetQueue[currentWidgetIndex];
+        console.log(`Loading widget: ${currentWidget.name}`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API delay
+        setCurrentWidgetIndex(prev => prev + 1);
+      }
+    };
+    loadWidget();
+  }, [currentWidgetIndex, widgetQueue]);
+
   return (
     <div>
       <Header />
       <h1>Your Favorite Leagues</h1>
-      {favorites.leagues.length > 0 ? (
+      {favorites.leagues.length > 0 && currentWidgetIndex > 0 ? (
         favorites.leagues.map((league, index) => (
           <div key={index} style={{ marginBottom: "20px" }}>
             <StandingsWidget league={league} />
@@ -106,14 +120,14 @@ export default function AccountHome() {
       )}
 
       <h1>Your Favorite Teams</h1>
-      {favorites.teams.length > 0 ? (
+      {favorites.teams.length > 0 && currentWidgetIndex > 1 ? (
         <TeamsWidget teams={favorites.teams} />
       ) : (
         <p>No teams found</p>
       )}
 
       <h1>Upcoming Games</h1>
-      {favorites.teams.length > 0 || favorites.leagues.length > 0 ? (
+      {favorites.teams.length > 0 || favorites.leagues.length > 0 && currentWidgetIndex > 2 ? (
         <GamesWidget teams={favorites.teams} leagues={favorites.leagues} />
       ) : (
         <p>No games found</p>

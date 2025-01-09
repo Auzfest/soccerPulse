@@ -69,6 +69,20 @@ useEffect(() => {
     router.push(`/team/${teamId}-${league}`);
   };
 
+
+  if (teams.length === 0) {
+    return (
+      <div style={{
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        padding: '10px',
+        margin: '10px',
+        textAlign: 'center',
+      }}>
+        <p>Teams are unavailable at the moment. Please try again later.</p>
+      </div>
+    );
+  }
   return (
     <div>
       {teams.map(team => (

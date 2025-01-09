@@ -32,6 +32,19 @@ useEffect(() => {
     fetchStandings();
   }, [league]);
 
+  if ( standings.length === 0) {
+    return (
+      <div style={{
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        padding: '10px',
+        margin: '10px',
+        textAlign: 'center',
+      }}>
+        <p>Standings are unavailable at the moment. Please try again later.</p>
+      </div>
+    );
+  }
   return (
     <table>
       <thead>
