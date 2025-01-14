@@ -4,7 +4,9 @@ import { useSession } from 'next-auth/react';
 import { fetchCountries, fetchLeagues, getTeams, getSpecificTeam, toggleSearchBox } from '../../footballapi';
 import Header from '../components/header';
 import TeamSearchWidget from '../components/teamSearchWidget';
-import TeamWidget from "../components/teamWidget";
+import GamesWidget from "../components/gamesWidget";
+
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -15,6 +17,46 @@ export default function Home() {
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLeague, setSelectedLeague] = useState('');
+
+  const router = useRouter();
+  const [favorites, setFavorites] = useState({ leagues: [], teams: [] });
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (status === "authenticated" && session?.user?.email) {
+        try {
+          const Eheader = session?.user?.email;
+          const response = await fetch('/api/favorites', {
+            headers: { 'user-email': Eheader },
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error fetching data:", errorText);
+            return;
+          }
+
+          const data = await response.json();
+          const favoritesData = data[0].Favorites;
+
+          const leagues = favoritesData[0]?.map(item => item) || [];
+          const teams = favoritesData[1]?.map(team => ({
+            leagueId: team[0],
+            teamId: team[1],
+          })) || [];
+
+          setFavorites({ leagues, teams });
+          // setWidgetQueue([StandingsWidget, TeamsWidget, GamesWidget]);
+        } catch (error) {
+          console.error("Error fetching favorites:", error);
+        }
+      } else if (status === "unauthenticated") {
+        router.push('/login');
+      }
+    };
+
+    fetchFavorites();
+  }, [status, session, router]);
 
   useEffect(() => {
     const fetchCountriesData = async () => {
@@ -142,6 +184,12 @@ const toggleSearchBox = () => {
         <div id="toggle-button" onClick={toggleSearchBox}>▲</div>
     </div>
     <TeamSearchWidget league={selectedLeague} />
+    <h1>Upcoming Games</h1>
+        {favorites.teams.length > 0 || favorites.leagues.length > 0 && currentWidgetIndex > 2 ? (
+            <GamesWidget teams={favorites.teams} leagues={favorites.leagues} />
+        ) : (
+            <p>No games found</p>
+        )}
 </div>
   );
 }

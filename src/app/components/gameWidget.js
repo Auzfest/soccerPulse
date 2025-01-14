@@ -15,8 +15,6 @@ export default function GameWidget({ game }) {
     );
   }
 
-  console.log('Game:', game);
-
   return (
     <div style={{
       border: '1px solid #ccc',
@@ -25,10 +23,19 @@ export default function GameWidget({ game }) {
       margin: '10px',
       textAlign: 'center',
     }}>
-      <h3>{game.teams.home.name} vs {game.teams.away.name}</h3>
-      <p>Date: {new Date(game.fixture.date).toLocaleString()}</p>
-      <p>Venue: {game.fixture.venue.name}</p>
-      <p>Score: {game.goals.home ?? '-'} - {game.goals.away ?? '-'}</p>
+      {game !== null ? (
+        <>
+          <h3><img src={game.teams.home.logo} alt={game.teams.home.name} />{game.teams.home.name}</h3>
+            <h3>vs</h3> <h3><img src={game.teams.away.logo} alt={game.teams.away.name} />{game.teams.away.name}</h3>
+          <p>Date: {new Date(game.fixture.date).toLocaleString()}</p>
+          <p>Venue: {game.fixture.venue.name}</p>
+          <p>Status: {game.fixture.status.long}</p>
+          <p>Score: {game.goals.home ?? '-'} - {game.goals.away ?? '-'}</p>
+        </>
+      ) : (
+      <p>Fixtures are unavailable at the moment. Please try again later.</p>
+      )
+      }
     </div>
   );
 }
