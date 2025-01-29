@@ -94,7 +94,7 @@ export default function AccountHome() {
         {/* Teams (First Row on Mobile) */}
         <div className="order-1 md:order-2 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
           <h1 className="text-xl font-bold mb-4">Teams</h1>
-          {favorites.teams.length > 1 ? (
+          {favorites.teams.length > 0 ? (
             loadedWidgets.includes(TeamsWidget) ? (
               <Swiper
                 spaceBetween={20}
@@ -122,7 +122,7 @@ export default function AccountHome() {
         {/* Games (Second Row on Mobile) */}
         <div className="order-2 md:order-3  bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
           <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
-          {favorites.teams.length > 1 ? (
+          {favorites.teams.length > 0 ? (
             loadedWidgets.includes(GamesWidget) ? (
               <div className="h-full">
                 <GamesWidget teams={favorites.teams} leagues={favorites.leagues} />
@@ -138,7 +138,7 @@ export default function AccountHome() {
         {/* Standings (Third Row on Mobile) */}
         <div className="order-3 md:order-1 col-span-1 row-span-3 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
           <h1 className="text-xl font-bold mb-4">Standings</h1>
-          {favorites.leagues.length > 1 ? (
+          {favorites.leagues.length > 0 ? (
             loadedWidgets.includes(StandingsWidget) ? (
               <Swiper
                 spaceBetween={20}

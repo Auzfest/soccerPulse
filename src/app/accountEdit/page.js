@@ -102,7 +102,6 @@ export default function AccountEdit() {
             body: JSON.stringify({
               email: session?.user?.email,
               name,
-              newEmail,
             }),
           });
       
