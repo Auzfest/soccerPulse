@@ -125,6 +125,7 @@ export const getSpecificTeam = async (leagueId, teamId) => {
         },
     };
     try {
+        console.log('Fetching specific team!');
         const response = await fetch(url, options);
         const data = await response.json();
         return data.response; // Return the team statistics data

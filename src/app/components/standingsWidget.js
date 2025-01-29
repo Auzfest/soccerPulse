@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 const StandingsWidget = ({ league }) => {
 const [standings, setStandings] = useState([]);
+const [failure, setFailure] = useState(false);
 
 useEffect(() => {
     const fetchStandings = async () => {
@@ -26,58 +27,67 @@ useEffect(() => {
         console.log("Standings:", leagueStandings);
       } catch (error) {
         console.error("Error fetching standings:", error);
+        setFailure(true);
       }
     };
 
     fetchStandings();
   }, [league]);
 
-  if ( standings.length === 0) {
+  if (failure) {
     return (
       <div style={{
-        border: '1px solid #ccc',
-        borderRadius: '5px',
         padding: '10px',
-        margin: '10px',
         textAlign: 'center',
-      }}>
-        <p>Standings are unavailable at the moment. Please try again later.</p>
+      }} className="bg-gray-400">
+        <p>Error fetching standings</p>
+      </div>
+    );
+  }
+
+  if (standings.length === 0 && !failure) {
+    return (
+      <div style={{
+        padding: '10px',
+        textAlign: 'center',
+      }} className="bg-gray-400">
+        <p>Please search a league</p>
       </div>
     );
   }
   return (
     <div className="overflow-x-auto">
-    <table className="table-auto w-full text-sm text-black border-collapse ">
+    <table className="table-auto w-full text-sm text-black border-collapse p-2">
       <thead className="bg-gray-400">
-        <tr>
-          <th className="  p-2">Pos</th>
-          <th className="  p-2">Team</th>
-          <th className="  p-2">P</th>
-          <th className="  p-2">W</th>
-          <th className="  p-2">D</th>
-          <th className="  p-2">L</th>
-          <th className="  p-2">GF</th>
-          <th className="  p-2">GA</th>
-          <th className="  p-2">GD</th>
-          <th className="  p-2">Pts</th>
+        <tr className='border-b-2 border-gray-300'>
+          <th className=" ">Pos</th>
+          <th className="  ">Team</th>
+          <th className="p-1">P</th>
+          <th className="p-1">W</th>
+          <th className="p-1">D</th>
+          <th className="p-1">L</th>
+          <th className="p-1">GF</th>
+          <th className="p-1">GA</th>
+          <th className="p-1">GD</th>
+          <th className="p-1">Pts</th>
         </tr>
       </thead>
       <tbody>
         {standings.map((team) => (
           <tr key={team.team.id} className="even:bg-gray-100 odd:bg-gray-300">
-            <td className="  p-2 text-center">{team.rank}</td>
-            <td className="  p-2 flex items-center">
-              <img src={team.team.logo} alt={team.team.name} className="w-5 h-5 mr-2" />
-              {team.team.name}
+            <td className=" text-center">{team.rank}</td>
+            <td key={team.team.id} className=" flex flex-col items-center pt-1">
+                  <img src={team.team.logo} alt={team.team.name} className="w-10 h-10 mb-2" />
+                  <span>{team.team.name}</span>
             </td>
-            <td className="  p-2 text-center">{team.all.played}</td>
-            <td className="  p-2 text-center">{team.all.win}</td>
-            <td className="  p-2 text-center">{team.all.draw}</td>
-            <td className="  p-2 text-center">{team.all.lose}</td>
-            <td className="  p-2 text-center">{team.all.goals.for}</td>
-            <td className="  p-2 text-center">{team.all.goals.against}</td>
-            <td className="  p-2 text-center">{team.goalsDiff}</td>
-            <td className="  p-2 text-center">{team.points}</td>
+            <td className="p-0 text-center">{team.points}</td>
+            <td className="p-0 text-center">{team.all.played}</td>
+            <td className="p-0 text-center">{team.all.win}</td>
+            <td className="p-0 text-center">{team.all.draw}</td>
+            <td className="p-0 text-center">{team.all.lose}</td>
+            <td className="p-0 text-center">{team.all.goals.for}</td>
+            <td className="p-0 text-center">{team.all.goals.against}</td>
+            <td className="p-0 text-center">{team.goalsDiff}</td>
           </tr>
         ))}
       </tbody>

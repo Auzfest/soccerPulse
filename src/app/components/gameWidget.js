@@ -16,26 +16,42 @@ export default function GameWidget({ game }) {
   }
 
   return (
-    <div style={{
-      border: '1px solid #ccc',
-      borderRadius: '5px',
-      padding: '10px',
-      margin: '10px',
-      textAlign: 'center',
-    }}>
-      {game !== null ? (
-        <>
-          <h3><img src={game.teams.home.logo} alt={game.teams.home.name} />{game.teams.home.name}</h3>
-            <h3>vs</h3> <h3><img src={game.teams.away.logo} alt={game.teams.away.name} />{game.teams.away.name}</h3>
-          <p>Date: {new Date(game.fixture.date).toLocaleString()}</p>
-          <p>Venue: {game.fixture.venue.name}</p>
-          <p>Status: {game.fixture.status.long}</p>
-          <p>Score: {game.goals.home ?? '-'} - {game.goals.away ?? '-'}</p>
-        </>
-      ) : (
-      <p>Fixtures are unavailable at the moment. Please try again later.</p>
-      )
-      }
+    <div className="border border-gray-300 rounded-lg p-6 mx-4 my-6 flex flex-col items-center">
+      <div className="grid grid-cols-3 items-center justify-center">
+        {/* Home Team */}
+        <div className="flex flex-col items-center">
+          <img
+            src={game.teams.home.logo}
+            alt={game.teams.home.name}
+            className="w-24 h-24 object-contain"
+          />
+        </div>
+        {/* VS Separator */}
+        <div className="m-0 text-xl font-semibold text-gray-600">vs</div>
+
+        {/* Away Team */}
+        <div className="flex flex-col items-center">
+          <img
+            src={game.teams.away.logo}
+            alt={game.teams.away.name}
+            className="w-24 h-24 object-contain"
+          />
+        </div>
+        <h3 className="text-lg font-bold text-gray-800">{game.teams.home.name}</h3>
+        <div></div>
+        <h3 className="text-lg font-bold text-gray-800">{game.teams.away.name}</h3>
+      </div>
+
+      {/* Game Details */}
+      <div className="mt-4 text-gray-700 text-center">
+        <p className="text-lg"><span className="font-semibold">Date:</span> {new Date(game.fixture.date).toLocaleString()}</p>
+        <p className="text-lg"><span className="font-semibold">Venue:</span> {game.fixture.venue.name}</p>
+        <p className="text-lg"><span className="font-semibold">Status:</span> {game.fixture.status.long}</p>
+        <p className="text-xl font-bold mt-2">
+          <span>{game.goals.home ?? '-'}</span> - 
+          <span> {game.goals.away ?? '-'}</span>
+        </p>
+      </div>
     </div>
   );
 }

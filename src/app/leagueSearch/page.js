@@ -1,16 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { fetchCountries, fetchLeagues, getTeams, getSpecificTeam, toggleSearchBox } from '../../footballapi';
 import Header from '../components/header';
 import StandingsWidget from '../components/standingsWidget';
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isFavoriteButtonDisabled, setIsFavoriteButtonDisabled] = useState(false);
   const [soccerPulseData, setSoccerPulseData] = useState([]);
   const [countries, setCountries] = useState([]);
   const [leagues, setLeagues] = useState([]);
   const [showStandings, setShowStandings] = useState(true);
+  const [favorites, setFavorites] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLeague, setSelectedLeague] = useState('');
@@ -47,14 +53,55 @@ useEffect(() => {
 const handleLeagueChange = async (e) => {
     const leagueId = e.target.value;
     setSelectedLeague(leagueId);
+    setIsFavorite(false);
+    setIsFavoriteButtonDisabled(false);
+    if (status === "authenticated") {
+        await getFavorites();
+    }
     console.log("Select League:", leagueId);
 };
 
 const toggleSearchBox = () => {
     const searchBox = document.getElementById('search-box');
     searchBox.classList.toggle('hidden');
+    setIsOpen(!isOpen);
 };
 
+const getFavorites = async () => {
+    const response = await fetch('/api/favorites', {
+        method: 'GET',
+        headers: {
+            'user-email': session?.user?.email,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch favorites");
+    }
+
+    const data = await response.json();
+    setFavorites(data[0].Favorites[0]); 
+    console.log(data[0].Favorites[0]);
+  };
+
+  const isLeagueFavorite = (league) => {
+    console.log(favorites);
+    console.log(league);
+    for (const favorite of favorites) {
+      console.log(favorite);
+      if (favorite == league) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    if (selectedLeague && favorites.length > 0) {
+        setIsFavorite(isLeagueFavorite(selectedLeague));
+        console.log("isFavorite:", isFavorite);
+    }
+  }, [selectedLeague, favorites]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,14 +113,13 @@ const toggleSearchBox = () => {
         }
 
         const data = await res.json();
-        console.log("Fetched Data:", data); // Log the data to see its structure
+        console.log("Fetched Data:", data);
 
-        // Check if data is in the expected format
         const parsedData = Array.isArray(data) ? data : data.Items || [];
         setSoccerPulseData(parsedData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setSoccerPulseData([]); // Handle the error case
+        setSoccerPulseData([]);
       }
     };
 
@@ -96,57 +142,77 @@ const toggleSearchBox = () => {
         },
         body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId } }),
         });
-        const data = await response.json();
-        console.log("Response from backend:", data);
-        } catch (error) {
+        setIsFavoriteButtonDisabled(true);
+      } catch (error) {
         console.error("Error adding favorite:", error);
-        alert("Failed to add the league to favorites.");
-        }
+      }
     }; 
 
   return (
     <div>
-        <Header />
-    <div id="searchSection">
-        <section className="search">
-            <h3>Search for a league</h3>
-            <p>Click the arrow below to search for a specific league.</p>
-            <div id="search-box" className="hidden">
-            {countries.length > 0 && (
-            <div>
-                <label htmlFor="countries">Select Country</label><br />
-                <select id="countries" onChange={handleCountryChange} className="text-black">
-                    <option value="" className="text-black">--Select Country--</option>
-                    {countries.map((country) => (
-                        <option key={country.code} value={country.code} className="text-black">{country.name}</option>
-                    ))}
-                </select><br />
-            </div>
-            )}
-            {countries.length > 0 && (
-            <div>
-                <label htmlFor="leagues">Select League</label><br />
-                <select id="leagues" onChange={handleLeagueChange} className='text-black'>
-                    <option value="39" className='text-black'>--Select League--</option>
-                    {leagues.map((league) => (
-                        <option key={league.league.id} value={league.league.id} className='text-black'>{league.league.name}</option>
-                    ))}
-                </select><br />
-                {status === "authenticated" && (
-                <button
-                onClick={() => handleAddFavorite(selectedLeague)}
-                disabled={!selectedLeague}
-                className="bg-green-500 text-white rounded px-3 py-1 disabled:bg-gray-400"
-                >
-                +
-                </button>
-            )}
-            </div>
-            )}
-            </div>
-        </section>
-        <div id="toggle-button" onClick={toggleSearchBox}>▲</div>
-    </div>
+    <Header />
+    <div id="searchSection" className="bg-slate-200 shadow-lg rounded-lg p-6 max-w-lg mx-auto my-6">
+    <section className="text-center">
+      <h3 className="text-2xl font-bold text-gray-800">Search for a League</h3>
+      <p className="text-gray-600 mt-2">Click the arrow below to search for a specific league.</p>
+
+      <div id="search-box" className="hidden mt-4">
+        {countries.length > 0 && (
+          <div className="mb-4">
+            <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country</label>
+            <select 
+              id="countries" 
+              onChange={handleCountryChange} 
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
+            >
+              <option value="" className="text-gray-500">--Select Country--</option>
+              {countries.map((country) => (
+                <option key={country.code} value={country.code} className="text-gray-900">
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {countries.length > 0 && (
+          <div className="mb-4">
+            <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League</label>
+            <select 
+              id="leagues" 
+              onChange={handleLeagueChange} 
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
+            >
+              <option value="39" className="text-gray-500">--Select League--</option>
+              {leagues.map((league) => (
+                <option key={league.league.id} value={league.league.id} className="text-gray-900">
+                  {league.league.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {status === "authenticated" && !isFavorite && !isFavoriteButtonDisabled && (
+          <button
+            onClick={() => handleAddFavorite(selectedLeague)}
+            disabled={!selectedLeague}
+            className="w-full bg-green-500 text-white font-semibold py-2 rounded-md hover:bg-green-600 disabled:bg-gray-400 transition"
+          >
+            Add as Favorite
+          </button>
+        )}
+      </div>
+    </section>
+
+  {/* Toggle Search Button */}
+  <div id="toggle-button" 
+       onClick={toggleSearchBox} 
+       className="cursor-pointer text-gray-700 text-2xl text-center mt-4 transition-transform hover:scale-105"
+       >
+         {isOpen ? "▼" : "▲"}
+  </div>
+</div>
     <StandingsWidget league={selectedLeague} />
 </div>
   );

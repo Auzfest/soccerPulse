@@ -23,6 +23,7 @@ export async function GET(req, res) {
         ":email": userEmail 
       }
     }));
+    console.log("Query result:", result.Items[0]);
     if (result.Items && result.Items.length > 0) {
       return new Response(JSON.stringify(result.Items), { status: 200 });
     } else {

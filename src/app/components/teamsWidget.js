@@ -1,14 +1,16 @@
 import React from 'react';
-import GameWidget from './teamWidget';
+import TeamWidget from './teamWidget';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Navigation } from 'swiper/modules';
 
-export default function TeamsWidget({ teams }) {
-    if (!teams || teams.length === 0) {
-        return <p>No teams available.</p>;
+export default function teamWidget({ teams }) {
+  const team = [teams];
+  console.log(team);
+    if (!team || team.length === 0) {
+        return <p>No team available.</p>;
       }
     
       return (
@@ -26,9 +28,11 @@ export default function TeamsWidget({ teams }) {
             pagination={{ clickable: true }}
             loop={true}
           >
-          {teams.map((team, index) => (
+          {team.map((teamed, index) => (
             <SwiperSlide key={index}>
-              <GameWidget key={index} leagueId={team.leagueId} teamId={team.teamId} />
+              <div className='w-10/12 mx-auto border border-gray-300 rounded-md p-4 bg-gray-300'>
+              <TeamWidget key={index} leagueId={teamed.leagueId} teamId={teamed.teamId} />
+              </div>
             </SwiperSlide>
           ))}
           </Swiper>

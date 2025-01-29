@@ -14,7 +14,7 @@ export default function Home() {
   const [countries, setCountries] = useState([]);
   const [leagues, setLeagues] = useState([]);
   const [showStandings, setShowStandings] = useState(true);
-
+  const [isOpen, setIsOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLeague, setSelectedLeague] = useState('');
 
@@ -96,6 +96,7 @@ const handleLeagueChange = async (e) => {
 const toggleSearchBox = () => {
     const searchBox = document.getElementById('search-box');
     searchBox.classList.toggle('hidden');
+    setIsOpen(!isOpen);
 };
 
 
@@ -150,46 +151,62 @@ const toggleSearchBox = () => {
 
   return (
     <div>
-        <Header />
-    <div id="searchSection">
-        <section className="search">
-            <h3>Search for a league</h3>
-            <p>Click the arrow below to search for a specific league.</p>
-            <div id="search-box" className="hidden">
-            {countries.length > 0 && (
-            <div>
-                <label htmlFor="countries">Select Country</label><br />
-                <select id="countries" onChange={handleCountryChange} className="text-black">
-                    <option value="" className="text-black">--Select Country--</option>
+      <Header />
+      <div>
+        <div id="searchSection" className="bg-slate-200 shadow-lg rounded-lg p-6 max-w-lg mx-auto my-6">
+        <section className="text-center">
+          <h3 className="text-2xl font-bold text-gray-800">Search for a Team</h3>
+          <p className="text-gray-600 mt-2">Click the arrow below to search for a specific league to view its teams.</p>
+
+            <div id="search-box" className="hidden mt-4">
+              {countries.length > 0 && (
+                <div className="mb-4">
+                  <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country</label>
+                  <select 
+                    id="countries" 
+                    onChange={handleCountryChange} 
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
+                  >
+                    <option value="" className="text-gray-500">--Select Country--</option>
                     {countries.map((country) => (
-                        <option key={country.code} value={country.code} className="text-black">{country.name}</option>
+                      <option key={country.code} value={country.code} className="text-gray-900">
+                        {country.name}
+                      </option>
                     ))}
-                </select><br />
-            </div>
-            )}
-            {countries.length > 0 && (
-            <div>
-                <label htmlFor="leagues">Select League</label><br />
-                <select id="leagues" onChange={handleLeagueChange} className='text-black'>
-                    <option value="39" className='text-black'>--Select League--</option>
+                  </select>
+                </div>
+              )}
+
+              {countries.length > 0 && (
+                <div className="mb-4">
+                  <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League</label>
+                  <select 
+                    id="leagues" 
+                    onChange={handleLeagueChange} 
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
+                  >
+                    <option value="39" className="text-gray-500">--Select League--</option>
                     {leagues.map((league) => (
-                        <option key={league.league.id} value={league.league.id} className='text-black'>{league.league.name}</option>
+                      <option key={league.league.id} value={league.league.id} className="text-gray-900">
+                        {league.league.name}
+                      </option>
                     ))}
-                </select><br />
-                
+                  </select>
+                </div>
+              )}
             </div>
-            )}
-            </div>
-        </section>
-        <div id="toggle-button" onClick={toggleSearchBox}>▲</div>
+          </section>
+
+        {/* Toggle Search Button */}
+        <div id="toggle-button" 
+            onClick={toggleSearchBox} 
+            className="cursor-pointer text-gray-700 text-2xl text-center mt-4 transition-transform hover:scale-105"
+            >
+              {isOpen ? "▼" : "▲"}
+        </div>
+      </div>
+          <TeamSearchWidget league={selectedLeague} />
+      </div>
     </div>
-    <TeamSearchWidget league={selectedLeague} />
-    <h1>Upcoming Games</h1>
-        {favorites.teams.length > 0 || favorites.leagues.length > 0 && currentWidgetIndex > 2 ? (
-            <GamesWidget teams={favorites.teams} leagues={favorites.leagues} />
-        ) : (
-            <p>No games found</p>
-        )}
-</div>
   );
 }

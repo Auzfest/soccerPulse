@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 
 const TeamSearchWidget = ({ league }) => {
 const [teams, setTeams] = useState([]);
+const [favorites, setFavorites] = useState([]);
+const [isFavorite, setIsFavorite] = useState(false);
 const { data: session, status } = useSession();
 const router = useRouter();
 
@@ -37,15 +39,58 @@ useEffect(() => {
     fetchTeams();
   }, [league]);
 
+  const getFavorites = async () => {
+    const response = await fetch('/api/favorites', {
+        method: 'GET',
+        headers: {
+            'user-email': session?.user?.email,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch favorites");
+    }
+
+    const data = await response.json();
+    setFavorites(data[0].Favorites[1]); 
+  };
+
+  const isTeamFavorite = (teamId) => {
+    for (const favorite of favorites) {
+      if (favorite[0] == league && favorite[1] == teamId) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const handleAddFavorite = async (leagueId, teamId) => {
     if (!teamId) {
         alert("Please select a league first.");
         return;
     }
-    console.log("User authentication status:", status);
-    console.log("User session:", session);
 
     try {
+      const getResponse = await fetch('/api/favorites', {
+        method: 'GET',
+        headers: {
+            'user-email': session?.user?.email,
+        },
+        });
+
+        if (!getResponse.ok) {
+            throw new Error("Failed to fetch favorites");
+        }
+        const favoritesData = await getResponse.json();
+
+        const existingFavorites = favoritesData.length > 0 ? favoritesData[0].Favorites || [] : [];
+        const isAlreadyFavorite = existingFavorites.some(fav => fav[1] === String(teamId));
+
+        if (isAlreadyFavorite) {
+            alert("This team is already in your favorites!");
+            return;
+        }
+
         const response = await fetch('/api/favorites', {
         method: 'POST',
         headers: {
@@ -62,8 +107,12 @@ useEffect(() => {
     }; 
 
   useEffect(() => {
-    console.log(teams)
-}, []);
+    console.log("User authentication status:", status);
+    if (status === "authenticated") {
+      console.log("getting favorites");
+      getFavorites();
+    }
+  }, [status]);
 
   const handleViewDetails = (teamId) => {
     router.push(`/team/${teamId}-${league}`);
@@ -73,42 +122,45 @@ useEffect(() => {
   if (teams.length === 0) {
     return (
       <div style={{
-        border: '1px solid #ccc',
-        borderRadius: '5px',
         padding: '10px',
-        margin: '10px',
         textAlign: 'center',
-      }}>
-        <p>Teams are unavailable at the moment. Please try again later.</p>
+      }} className="bg-gray-400">
+        <p>Please search a league to view teams</p>
       </div>
     );
   }
   return (
-    <div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
       {teams.map(team => (
-        console.log(team),
-        <div key={team.team.id}style={{
-            border: '1px solid #ccc',
-            borderRadius: '5px',
-            padding: '10px',
-            margin: '10px',
-            textAlign: 'center',
-          }}>
-            <h1>{team.team.name}</h1>
-            <img src={team.team.logo} alt={team.team.name} style={{ width: '50px', height: '50px' }} />
-            <h2>Venue: {team.venue.name}</h2>
-            <h3>{team.venue.address}, {team.venue.city}, {team.team.country}</h3>
-            <p>Capacity: {team.venue.capacity}</p>
-            <button onClick={() => handleViewDetails(team.team.id)}>View</button>
+        <div key={team.team.id} className="bg-gray-300 shadow-md rounded-lg p-6 text-center border border-gray-300 transition hover:shadow-lg">
+          {/* Team Logo */}
+          <img src={team.team.logo} alt={team.team.name} className="w-32 h-32 mx-auto mb-3" />
+          
+          {/* Team Name */}
+          <h2 className="text-lg font-bold text-gray-800">{team.team.name}</h2>
+          
+          {/* Venue */}
+          <p className="text-gray-600">{team.venue.name}, {team.venue.city}, {team.team.country}</p>
+          <p className="text-gray-500 text-sm">Capacity: {team.venue.capacity}</p>
 
-            {status === "authenticated" && (
-                <button
+          {/* Buttons */}
+          <div className="mt-4 flex flex-col space-y-2">
+            <button 
+              onClick={() => handleViewDetails(team.team.id)} 
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              View More Details
+            </button>
+
+            {status === "authenticated" && !isTeamFavorite(team.team.id) && (
+              <button
                 onClick={() => handleAddFavorite(league, team.team.id)}
-                className="bg-green-500 text-white rounded px-3 py-1 disabled:bg-gray-400"
-                >
-                +
-                </button>
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+              >
+                Add as Favorite
+              </button>
             )}
+          </div>
         </div>
       ))}
     </div>

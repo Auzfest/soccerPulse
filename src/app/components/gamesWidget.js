@@ -18,10 +18,12 @@ export default function GamesWidget({ teams, leagues }) {
       setIsFetched(true);
 
       const today = new Date();
+      const weekAgo = new Date(today);
+      weekAgo.setDate(today.getDate() - 7);
       const threeDaysLater = new Date(today);
       threeDaysLater.setDate(today.getDate() + 8);
 
-      const from = today.toISOString().split('T')[0];
+      const from = weekAgo.toISOString().split('T')[0];
       const to = threeDaysLater.toISOString().split('T')[0];
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       console.log('from:', from, 'to:', to, 'timezone:', timezone);
@@ -29,19 +31,34 @@ export default function GamesWidget({ teams, leagues }) {
 
       try {
         const allGames = [];
-        for (const team of teams) {
-          console.log('Fetching games for team:', team.teamId, 'in league:', team.leagueId);
+        console.log('tema length', teams.length);
+        if (teams.length === undefined) {
           const fixtures = await getFixtures({
-            leagueId: team.leagueId,
-            teamId: team.teamId,
+            leagueId: leagues,
+            teamId: teams,
             from,
             to,
             timezone
           });
           allGames.push(...fixtures);
+          setGames(allGames);
+          console.log('Fetched games:', allGames);
         }
-        setGames(allGames);
-        console.log('Fetched games:', allGames);
+        else {
+          for (const team of teams) {
+            console.log('Fetching games for team:', team.teamId, 'in league:', team.leagueId);
+            const fixtures = await getFixtures({
+              leagueId: team.leagueId,
+              teamId: team.teamId,
+              from,
+              to,
+              timezone
+            });
+            allGames.push(...fixtures);
+          }
+          setGames(allGames);
+          console.log('Fetched games:', allGames);
+        }
       } catch (error) {
         console.error('Error fetching games:', error);
       }
@@ -62,7 +79,9 @@ export default function GamesWidget({ teams, leagues }) {
       >
         {games.flat().map((game, index) => (
         <SwiperSlide key={index}>
-          <GameWidget key={`game-${index}`} game={game} />
+          <div className='w-10/12 mx-auto rounded-md p-4 bg-gray-300'>
+            <GameWidget key={`game-${index}`} game={game} />
+          </div>
         </SwiperSlide>
       ))}
       </Swiper>
