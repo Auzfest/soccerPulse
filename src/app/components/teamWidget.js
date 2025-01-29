@@ -65,7 +65,7 @@ export default function TeamWidget({ leagueId, teamId }) {
       {/* View More Button */}
       <a
         href={`/team/${teamData.team.id}-${teamData.league.id}`}
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition ease-in-out duration-300"
       >
         View More
       </a>
