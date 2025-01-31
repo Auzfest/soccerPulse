@@ -25,9 +25,8 @@ export default function RegisterPage() {
                 body: JSON.stringify({ email, password, name }),
             });
             const result = await res.json();
-
             if (!res.ok) {
-                throw new Error(result.message || 'Something went wrong');
+                throw new Error(result || 'Something went wrong');
             }
 
             // Redirect to login page or home page after successful registration

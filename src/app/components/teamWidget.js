@@ -1,5 +1,6 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
+import Link from 'next/link';
 import { getSpecificTeam } from '../../footballapi';
 
 export default function TeamWidget({ leagueId, teamId }) {
@@ -27,6 +28,13 @@ export default function TeamWidget({ leagueId, teamId }) {
       fetchTeamData();
     }, [leagueId, teamId]);
   
+    if (leagueId == 0 || teamId == 0) return (
+      <div className="animate-pulse bg-gray-300 w-full h-32 rounded-md p-8 flex justify-center items-center transition ease-in-out duration-500">
+            <p className="text-gray-500">No favorite teams added yet.<br />Search for a team <Link href="/teamSearch"><span className='underline text-blue-500'>here</span></Link> to add it to your favorites.</p>
+      </div>
+    );
+
+
     if (!teamData) return (
       <div className="animate-pulse bg-gray-300 w-full h-32 rounded-md p-8 flex justify-center items-center transition ease-in-out duration-500">
         <p className="text-gray-500">Loading team data...</p>

@@ -17,7 +17,6 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedLeague, setSelectedLeague] = useState('');
-
   const router = useRouter();
   const [favorites, setFavorites] = useState({ leagues: [], teams: [] });
 
@@ -49,8 +48,6 @@ export default function Home() {
         } catch (error) {
           console.error("Error fetching favorites:", error);
         }
-      } else if (status === "unauthenticated") {
-        router.push('/login');
       }
     };
 
@@ -128,8 +125,7 @@ const toggleSearchBox = () => {
         });
         const data = await response.json();
         } catch (error) {
-        console.error("Error adding favorite:", error);
-        alert("Failed to add the team to favorites.");
+          console.error("Error adding favorite:", error);
         }
     }; 
 

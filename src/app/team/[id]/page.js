@@ -72,6 +72,7 @@ export default function TeamDetails() {
                 try {
                     const data = await getSpecificTeam(leagueId, teamId);
                     setTeamData(data);
+                    setLoading(false);
                 } catch (error) {
                     console.error('Error fetching team data:', error);
                 }

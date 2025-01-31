@@ -67,48 +67,37 @@ export async function POST(req, res) {
 
     const userID = queryResult.Items[0].ID;
     console.log("User ID:", userID);
+
+    let currentFavorites = queryResult.Items[0].Favorites || [[], []];
+    console.log("Favorites before cleanup:", JSON.stringify(currentFavorites));
+
+    // **Remove placeholder zeros**
+    currentFavorites = currentFavorites.map(list => 
+      Array.isArray(list) ? list.filter(item => {
+        if (Array.isArray(item)) {
+          return item.every(subItem => subItem !== "0" && subItem !== 0); // Remove arrays with "0"
+        }
+        return item !== "0" && item !== 0; // Remove single "0" entries
+      }) : []
+    );
+
+    console.log("Favorites after cleanup:", JSON.stringify(currentFavorites));
+
     if (newItem.teamId) {
-      newItem.teamId = String(newItem.teamId);
+      // **Handling Teams (index 1)**
       const leagueId = String(newItem.leagueId);
       const teamId = String(newItem.teamId);
-      console.log("League and Team detected:", newItem);
-      result = await client.send(
-        new UpdateCommand({
-          TableName: "Soccer_Pulse",
-          Key: {
-            ID: userID,
-          },
-          UpdateExpression: "SET #Favorites[1] = list_append(if_not_exists(#Favorites[1], :empty_list), :newItem)",
-          ExpressionAttributeNames: {
-            "#Favorites": "Favorites",
-          },
-          ExpressionAttributeValues: {
-            ":newItem": [[leagueId, teamId]],
-            ":empty_list": [],
-          },
-          ReturnValues: "UPDATED_NEW",
-        })
-      );
+      console.log("Adding League and Team:", leagueId, teamId);
+
+      // Append after cleaning
+      currentFavorites[1].push([leagueId, teamId]);
     } else if (newItem.leagueId && !newItem.teamId) {
-      console.log("Only League detected:", newItem);
+      // **Handling Leagues (index 0)**
+      console.log("Adding League:", newItem.leagueId);
       const leagueId = String(newItem.leagueId);
-      result = await client.send(
-        new UpdateCommand({
-          TableName: "Soccer_Pulse",
-          Key: {
-            ID: userID,
-          },
-          UpdateExpression: "SET #Favorites[0] = list_append(if_not_exists(#Favorites[0], :empty_list), :newItem)",
-          ExpressionAttributeNames: {
-            "#Favorites": "Favorites",
-          },
-          ExpressionAttributeValues: {
-            ":newItem": [leagueId],
-            ":empty_list": [],
-          },
-          ReturnValues: "UPDATED_NEW",
-        })
-      );
+
+      // Append after cleaning
+      currentFavorites[0].push(leagueId);
     } else {
       console.error("Invalid newItem format");
       return new Response(
@@ -116,8 +105,28 @@ export async function POST(req, res) {
         { status: 400 }
       );
     }
-    console.log("Update successful:", result);
+
+    // **Update DynamoDB with cleaned & updated list**
+    const result = await client.send(
+      new UpdateCommand({
+        TableName: "Soccer_Pulse",
+        Key: {
+          ID: userID,
+        },
+        UpdateExpression: "SET #Favorites = :cleanedList",
+        ExpressionAttributeNames: {
+          "#Favorites": "Favorites",
+        },
+        ExpressionAttributeValues: {
+          ":cleanedList": currentFavorites,
+        },
+        ReturnValues: "UPDATED_NEW",
+      })
+    );
+
+    console.log("Update successful:", JSON.stringify(result));
     return new Response(JSON.stringify(result), { status: 200 });
+
   } catch (error) {
     console.error("Error updating data:", error);
     return new Response('Error updating data', { status: 500 });

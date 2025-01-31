@@ -104,9 +104,13 @@ export default function AccountHome() {
                 loop={true}
               >
                 {favorites.teams.map((team, index) => (
-                  <SwiperSlide key={index}>
-                    <TeamsWidget teams={team} />
-                  </SwiperSlide>
+                  team.leagueId == 0 || team.teamId == 0 ? (
+                    <p className="text-gray-500">No favorite teams added yet.<br />Search for a team <Link href="/teamSearch"><span className='underline text-blue-500'>here</span></Link> to add it to your favorites.</p>
+                  ) : (   
+                    <SwiperSlide key={index}>
+                      <TeamsWidget teams={team} />
+                    </SwiperSlide>
+                  )
                 ))}
               </Swiper>
             ) : (

@@ -94,10 +94,9 @@ useEffect(() => {
         },
         body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
         });
-        const data = await response.json();
+        setFavorites((prevFavorites) => [...prevFavorites, [leagueId, teamId]]);
         } catch (error) {
         console.error("Error adding favorite:", error);
-        alert("Failed to add the team to favorites.");
         }
     }; 
 
