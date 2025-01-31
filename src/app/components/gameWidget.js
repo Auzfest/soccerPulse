@@ -1,6 +1,9 @@
 import React from 'react';
+import { useState } from 'react';
 
 export default function GameWidget({ game }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  setTimeout(() => setIsLoaded(true), 300);
   if (!game || game.length === 0) {
     return (
       <div style={{
@@ -16,8 +19,8 @@ export default function GameWidget({ game }) {
   }
 
   return (
-    <div className="border border-gray-300 rounded-lg p-6 mx-4 my-6 flex flex-col items-center">
-      <div className="grid grid-cols-3 items-center justify-center">
+    <div className={`border border-gray-300 rounded-lg mx-4 my-6 flex flex-col items-center transition ease-in-out duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="grid grid-cols-[2fr_1fr_2fr] items-center justify-center">
         {/* Home Team */}
         <div className="flex flex-col items-center">
           <img
@@ -37,9 +40,9 @@ export default function GameWidget({ game }) {
             className="w-24 h-24 object-contain"
           />
         </div>
-        <h3 className="text-lg font-bold text-gray-800">{game.teams.home.name}</h3>
+        <h3 className="sm:text-md md:text-lg font-bold text-gray-800">{game.teams.home.name}</h3>
         <div></div>
-        <h3 className="text-lg font-bold text-gray-800">{game.teams.away.name}</h3>
+        <h3 className="sm:text-md md:text-lg font-bold text-gray-800">{game.teams.away.name}</h3>
       </div>
 
       {/* Game Details */}

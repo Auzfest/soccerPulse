@@ -34,7 +34,6 @@ export const updateStandingsSeason = async (leagueId) => {
         const currentDate = getCurrentDate();
         fixtures.setAttribute('data-season', currentSeason);
     } else {
-        console.log(currentSeason);
         return currentSeason;
     }
 
@@ -56,7 +55,6 @@ export const getCurrentDate = () => {
 // Fetch countries from the API
 export const fetchCountries = async () => {
     const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/countries`;
-    console.log(url);
     const options = {
         method: 'GET',
         headers: {
@@ -67,7 +65,6 @@ export const fetchCountries = async () => {
     try {
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log(data.response);
         return data.response; // Return the countries data
     } catch (error) {
         console.error('Error fetching countries:', error);
@@ -87,7 +84,6 @@ export const fetchLeagues = async (countryCode) => {
     try {
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log(data.response);
         return data.response; // Return the leagues data
     } catch (error) {
         console.error('Error fetching leagues:', error);
@@ -107,7 +103,6 @@ export const getTeams = async (leagueId) => {
     try {
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log(data.response);
         return data.response; // Return the teams data
     } catch (error) {
         console.error('Error fetching teams:', error);
@@ -125,7 +120,6 @@ export const getSpecificTeam = async (leagueId, teamId) => {
         },
     };
     try {
-        console.log('Fetching specific team!');
         const response = await fetch(url, options);
         const data = await response.json();
         return data.response; // Return the team statistics data
@@ -146,7 +140,6 @@ export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
     };
   
     try {
-      console.log("Fetching fixtures from:", url);
       const response = await fetch(url, options);
   
       if (!response.ok) {
@@ -155,7 +148,6 @@ export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
       }
   
       const data = await response.json();
-      console.log("Fetched fixtures data:", data);
       return data.response || []; // Return the response array
     } catch (error) {
       console.error("Error fetching fixtures:", error);

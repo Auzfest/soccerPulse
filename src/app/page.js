@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Header from "./components/header";
+import LoadingScreen from "./components/loadingScreen";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -13,7 +14,18 @@ export default function HomePage() {
       router.push("/accountHome");
     }
   }, [status, router]);
-
+  if (status === "loading") return (
+    <div className="min-h-screen bg-gray-100">
+      <Header />
+      <LoadingScreen />
+    </div>
+  );
+  if (status === "authenticated") return (
+    <div className="min-h-screen bg-gray-100">
+      <Header />
+      <LoadingScreen />
+    </div>
+  );
   return (
     <div style={{ textAlign: "center" }}>
       <Header />

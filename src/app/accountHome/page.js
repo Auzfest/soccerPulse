@@ -7,7 +7,7 @@ import StandingsWidget from '../components/standingsWidget';
 import TeamsWidget from '../components/teamsWidget';
 import GamesWidget from '../components/gamesWidget';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Navigation, Pagination } from 'swiper/modules';
 import { useMediaQuery } from 'react-responsive';
 import LoadingScreen from "../components/loadingScreen";
 import Link from 'next/link';
@@ -47,7 +47,6 @@ export default function AccountHome() {
           })) || [];
 
           setFavorites({ leagues, teams });
-          console.log('Favorites:', leagues, teams);
           setWidgetQueue([StandingsWidget, TeamsWidget, GamesWidget]);
         } catch (error) {
           console.error("Error fetching favorites:", error);
@@ -80,7 +79,7 @@ export default function AccountHome() {
     }
   }, [widgetQueue]);
 
-  if (loading || isWidgetsLoading) return (
+  if (loading || isWidgetsLoading || status === "loading") return (
     <div className="min-h-screen bg-gray-100">
       <Header />
       <LoadingScreen />
@@ -92,7 +91,7 @@ export default function AccountHome() {
       <Header />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2 md:p-6">
         {/* Teams (First Row on Mobile) */}
-        <div className="order-1 md:order-2 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
+        <div className="order-1 md:order-2 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8 mt-8 md:mt-0">
           <h1 className="text-xl font-bold mb-4">Teams</h1>
           {favorites.teams.length > 0 ? (
             loadedWidgets.includes(TeamsWidget) ? (
@@ -100,12 +99,11 @@ export default function AccountHome() {
                 spaceBetween={20}
                 slidesPerView={1}
                 navigation={true}
-                modules={[Navigation]}
+                modules={[Navigation, Pagination]}
                 pagination={{ clickable: true }}
                 loop={true}
               >
                 {favorites.teams.map((team, index) => (
-                  console.log(team),
                   <SwiperSlide key={index}>
                     <TeamsWidget teams={team} />
                   </SwiperSlide>
@@ -136,7 +134,7 @@ export default function AccountHome() {
         </div>
   
         {/* Standings (Third Row on Mobile) */}
-        <div className="order-3 md:order-1 col-span-1 row-span-3 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
+        <div className="order-3 md:order-1 col-span-1 row-span-3 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full md:p-8">
           <h1 className="text-xl font-bold mb-4">Standings</h1>
           {favorites.leagues.length > 0 ? (
             loadedWidgets.includes(StandingsWidget) ? (
@@ -144,13 +142,13 @@ export default function AccountHome() {
                 spaceBetween={20}
                 slidesPerView={1}
                 navigation={true}
-                modules={[Navigation]}
+                modules={[Navigation, Pagination]}
                 pagination={{ clickable: true }}
                 loop={true}
               >
                 {favorites.leagues.map((league, index) => (
                   <SwiperSlide key={index}>
-                    <div className='w-10/12 mx-auto border-2 border-gray-400 rounded-md'>
+                    <div className=' px-12 mx-auto rounded-md'>
                     <StandingsWidget league={league} />
                     </div>
                   </SwiperSlide>

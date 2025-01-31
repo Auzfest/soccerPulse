@@ -48,7 +48,6 @@ export default function AccountEdit() {
               const response = await fetch(url, options);
               const data = await response.json();
             const leagueTeams = data.response;
-            console.log(leagueTeams);
             return { 
               name: leagueTeams[0].league.name,
               leagueId: leagueId,
@@ -59,7 +58,6 @@ export default function AccountEdit() {
         const teamsData = data[0].Favorites[1] || [];
         const teamsWithNames = await Promise.all(
           teamsData.map(async ([leagueId, teamId]) => {
-            console.log(leagueId, teamId);
             const teamInfo = await getSpecificTeam(leagueId, teamId);
             return { 
             name: teamInfo.team.name,
@@ -108,7 +106,6 @@ export default function AccountEdit() {
           const result = await response.json();
       
           if (!response.ok) {
-            console.log(result);
             throw new Error(result.message || "Something went wrong");
           }
     } catch (error) {
@@ -117,7 +114,6 @@ export default function AccountEdit() {
   };
 
   const handleDeleteFavoriteLeague = async (leagueId) => {
-    console.log("Deleting favorite:", leagueId);
     try {
       const updatedFavorites = { ...favorites };
 
@@ -144,7 +140,6 @@ export default function AccountEdit() {
   };
 
   const handleDeleteFavoriteTeam = async (leagueId, teamId) => {
-    console.log("Deleting favorite:", leagueId, teamId);
     try {
       const updatedFavorites = { ...favorites };
 
@@ -221,7 +216,6 @@ export default function AccountEdit() {
           {/* Leagues Section */}
           <h3 className="text-xl font-semibold mt-6 text-gray-700">Leagues</h3>
           {favorites.leagues.length > 0 ? (
-            console.log(favorites.leagues),
             <ul className="mt-4 space-y-2">
               {favorites.leagues.map((league, index) => (
                 <li

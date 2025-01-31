@@ -21,7 +21,6 @@ export default function TeamDetails() {
     const [teamData, setTeamData] = useState(null);
     const [favorites, setFavorites] = useState([]);
     const [isFavorite, setIsFavorite] = useState(false);
-    console.log(id, leagueId, teamId);
 
     const getFavorites = async () => {
         const response = await fetch('/api/favorites', {
@@ -36,16 +35,14 @@ export default function TeamDetails() {
         }
 
         const data = await response.json();
+        const leagueIdString = String(leagueId);
+        const teamIdString = String(teamId);
         for (const favorite of data[0].Favorites[1]) {
-            console.log(favorite);
-            if (favorite[0] === leagueId && favorite[1] === teamId) {
+            if (favorite[0] === leagueIdString && favorite[1] === teamIdString) {
                 setIsFavorite(true);
-                console.log("is favorite")
-            }
-            else {
-                console.log("not favorite")
             }
         }
+        setLoading(false);
     };
 
     const handleAddFavorite = async (leagueId, teamId) => {
@@ -63,18 +60,11 @@ export default function TeamDetails() {
             body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
             });
             const data = await response.json();
-            console.log("Response from backend:", data);
             } catch (error) {
             console.error("Error adding favorite:", error);
             alert("Failed to add the team to favorites.");
             }
         }; 
-
-    useEffect(() => {
-        if (leagueId && teamId) {
-            console.log(`Fetching data for League: ${leagueId}, Team: ${teamId}`);
-        }
-    }, [leagueId, teamId]);
 
     useEffect(() => {
         if (id) {
@@ -87,7 +77,6 @@ export default function TeamDetails() {
                 }
             };
             fetchTeamData(); 
-            setLoading(false);               
         }
     }, [id]);
 
@@ -109,29 +98,122 @@ export default function TeamDetails() {
         );
 
     return (
-        console.log(teamData),
-        <div>
-            <Header />
-            <button onClick={() => goBack()}>Back</button>
-            <h1>{teamData.team.name}</h1>
-            <img src={teamData.team.logo} alt={teamData.team.name} style={{ width: '100px', height: '100px' }} />
-            <p>League: {teamData.league.name}</p>
-            <p>Country: {teamData.league.country}</p>
-            <p>Games Played: {teamData.fixtures.played.total}</p>
-            <p>Wins: {teamData.fixtures.wins.total}</p>
-            <p>Draws: {teamData.fixtures.draws.total}</p>
-            <p>Losses: {teamData.fixtures.loses.total}</p>
-            <p>Goals For : {teamData.goals.for.total.total}</p>
-            <p>Goals Against: {teamData.goals.against.total.total}</p>
-            <p>Goal Difference: {teamData.goals.difference}</p>
+        <div className="min-h-screen">
+        <Header />
+        <div 
+            className="min-h-screen bg-auto bg-top bg-no-repeat items-center justify-center mt-8"
+            style={{ backgroundImage: `url(${teamData.league.logo})` }}
+        >
+        <button
+            onClick={goBack}
+            className="my-2 mx-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition static top-12 left-4"
+          >
+            ← Back
+          </button>
+        <div className="container mx-auto p-6 text-center">
+          {/* Team Info Section */}
+        <div className="mx-auto w-full h-2/3 flex items-center justify-center">
+            <div className="p-6 text-center bg-slate-200 shadow-md rounded-lg max-w-fit">
+                <img
+                src={teamData.team.logo}
+                alt={teamData.team.name}
+                className="w-24 h-24 mx-auto mb-4"
+                />
+                <h1 className="text-3xl font-bold">{teamData.team.name}</h1>
+                <p className="text-gray-600 text-lg">League: {teamData.league.name}</p>
+                <p className="text-gray-600 text-lg">Country: {teamData.league.country}</p>
+            </div>
+        </div>
+
+            {/* Team Statistics */}
+<div className="mt-8 bg-slate-200 shadow-md rounded-lg p-6">
+  <h2 className="text-2xl font-bold mb-4 text-center">Team Performance</h2>
+
+  {/* Games Played */}
+  <div className="w-full mb-6">
+    <p className="font-semibold text-center">Games Played: {teamData.fixtures.played.total}</p>
+    <div className="w-full bg-gray-300 h-4 rounded">
+      <div className="w-full bg-gray-300 h-4 rounded flex">
+        <div
+            className="bg-blue-500 h-4 rounded-l"
+            style={{ width: `${(teamData.fixtures.played.home / teamData.fixtures.played.total) * 100}%` }}
+        ></div>
+        <div
+            className="bg-red-500 h-4 rounded-r"
+            style={{ width: `${(teamData.fixtures.played.away / teamData.fixtures.played.total) * 100}%` }}
+        ></div>
+      </div>
+      <div className="flex justify-between text-sm text-gray-700 mt-1">
+            <span className="text-blue-600">Home: {teamData.fixtures.played.home}</span>
+            <span className="text-red-600">Away: {teamData.fixtures.played.away}</span>
+      </div>
+    </div>
+  </div>
+
+  <div className="mb-6">
+    <p className="font-semibold text-center">Match Results</p>
+    <div className="w-full bg-gray-300 h-4 rounded flex">
+      <div
+        className="bg-green-500 h-4 rounded-l"
+        style={{ width: `${(teamData.fixtures.wins.total / teamData.fixtures.played.total) * 100}%` }}
+      ></div>
+      <div
+        className="bg-gray-500 h-4"
+        style={{ width: `${(teamData.fixtures.draws.total / teamData.fixtures.played.total) * 100}%` }}
+      ></div>
+      <div
+        className="bg-red-500 h-4 rounded-r"
+        style={{ width: `${(teamData.fixtures.loses.total / teamData.fixtures.played.total) * 100}%` }}
+      ></div>
+    </div>
+    <div className="flex justify-between text-sm text-gray-700 mt-1">
+      <span className="text-green-600">Wins: {teamData.fixtures.wins.total}</span>
+      <span className="text-gray-600">Draws: {teamData.fixtures.draws.total}</span>
+      <span className="text-red-600">Losses: {teamData.fixtures.loses.total}</span>
+    </div>
+  </div>
+
+  {/* Goals For and Goals Against on One Bar */}
+  <div className="mb-2">
+    <p className="font-semibold text-center">Goals Scored vs Conceded</p>
+    <div className="w-full bg-gray-300 h-4 rounded flex">
+      <div
+        className="bg-green-400 h-4 rounded-l"
+        style={{ width: `${(teamData.goals.for.total.total / (teamData.goals.for.total.total + teamData.goals.against.total.total)) * 100}%` }}
+      ></div>
+      <div
+        className="bg-red-400 h-4 rounded-r"
+        style={{ width: `${(teamData.goals.against.total.total / (teamData.goals.for.total.total + teamData.goals.against.total.total)) * 100}%` }}
+      ></div>
+    </div>
+    <div className="flex justify-between text-sm text-gray-700 mt-1">
+      <span className="text-green-600">Goals For: {teamData.goals.for.total.total}</span>
+      <span className="text-red-600">Goals Against: {teamData.goals.against.total.total}</span>
+    </div>
+  </div>
+
+  {/* Goal Difference */}
+  <div className="mt-2 text-center ">
+    <p className="text-xl font-bold">
+      Goal Difference: 
+      <span className={(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2) >= 0 ? "text-green-600" : "text-red-600"}>
+        {" "}{(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2)}
+      </span>
+    </p>
+  </div>
+</div>
+
+  
+            {/* Favorite Button */}
             {status === "authenticated" && !isFavorite && (
-                <button
-                onClick={() => handleAddFavorite(leagueId , teamId)}
-                className="bg-green-500 text-white rounded px-3 py-1 disabled:bg-gray-400"
-                >
-                +
-                </button>
+              <button
+                onClick={() => handleAddFavorite(leagueId, teamId)}
+                className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition ease-in-out duration-300 mx-auto"
+              >
+                Add to Favorites
+              </button>
             )}
+          </div>
             <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
                 <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
                 <div className="h-full">
@@ -146,5 +228,6 @@ export default function TeamDetails() {
                 ))}
             </ul> */}
         </div>
+      </div>
     );
 }

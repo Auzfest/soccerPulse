@@ -37,18 +37,10 @@ export default function Home() {
 
   const handleCountryChange = async (e) => {
     const countryCode = e.target.value;
-    console.log("Selected Country:", countryCode);
     setSelectedCountry(countryCode);
     let leaguesData = await fetchLeagues(countryCode);
-    console.log("Selected Leagues:", leaguesData);
     setLeagues(leaguesData);
 };
-
-useEffect(() => {
-    if (leagues.length > 0) {
-        console.log("Updated Leagues:", leagues);
-    }
-}, [leagues]);
 
 const handleLeagueChange = async (e) => {
     const leagueId = e.target.value;
@@ -58,7 +50,6 @@ const handleLeagueChange = async (e) => {
     if (status === "authenticated") {
         await getFavorites();
     }
-    console.log("Select League:", leagueId);
 };
 
 const toggleSearchBox = () => {
@@ -81,14 +72,10 @@ const getFavorites = async () => {
 
     const data = await response.json();
     setFavorites(data[0].Favorites[0]); 
-    console.log(data[0].Favorites[0]);
   };
 
   const isLeagueFavorite = (league) => {
-    console.log(favorites);
-    console.log(league);
     for (const favorite of favorites) {
-      console.log(favorite);
       if (favorite == league) {
         return true;
       }
@@ -99,7 +86,6 @@ const getFavorites = async () => {
   useEffect(() => {
     if (selectedLeague && favorites.length > 0) {
         setIsFavorite(isLeagueFavorite(selectedLeague));
-        console.log("isFavorite:", isFavorite);
     }
   }, [selectedLeague, favorites]);
 
@@ -113,8 +99,6 @@ const getFavorites = async () => {
         }
 
         const data = await res.json();
-        console.log("Fetched Data:", data);
-
         const parsedData = Array.isArray(data) ? data : data.Items || [];
         setSoccerPulseData(parsedData);
       } catch (error) {
@@ -131,9 +115,6 @@ const getFavorites = async () => {
         alert("Please select a league first.");
         return;
     }
-    console.log("User authentication status:", status);
-    console.log("User session:", session);
-
     try {
         const response = await fetch('/api/favorites', {
         method: 'POST',
@@ -213,7 +194,9 @@ const getFavorites = async () => {
          {isOpen ? "▼" : "▲"}
   </div>
 </div>
+  <div className="p-8">
     <StandingsWidget league={selectedLeague} />
+    </div>
 </div>
   );
 }

@@ -46,7 +46,6 @@ export default function Home() {
           })) || [];
 
           setFavorites({ leagues, teams });
-          // setWidgetQueue([StandingsWidget, TeamsWidget, GamesWidget]);
         } catch (error) {
           console.error("Error fetching favorites:", error);
         }
@@ -74,23 +73,14 @@ export default function Home() {
 
   const handleCountryChange = async (e) => {
     const countryCode = e.target.value;
-    console.log("Selected Country:", countryCode);
     setSelectedCountry(countryCode);
     let leaguesData = await fetchLeagues(countryCode);
-    console.log("Selected Leagues:", leaguesData);
     setLeagues(leaguesData);
 };
-
-useEffect(() => {
-    if (leagues.length > 0) {
-        console.log("Updated Leagues:", leagues);
-    }
-}, [leagues]);
 
 const handleLeagueChange = async (e) => {
     const leagueId = e.target.value;
     setSelectedLeague(leagueId);
-    console.log("Select League:", leagueId);
 };
 
 const toggleSearchBox = () => {
@@ -110,14 +100,12 @@ const toggleSearchBox = () => {
         }
 
         const data = await res.json();
-        console.log("Fetched Data:", data); // Log the data to see its structure
 
-        // Check if data is in the expected format
         const parsedData = Array.isArray(data) ? data : data.Items || [];
         setSoccerPulseData(parsedData);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setSoccerPulseData([]); // Handle the error case
+        setSoccerPulseData([]);
       }
     };
 
@@ -129,8 +117,6 @@ const toggleSearchBox = () => {
         alert("Please select a league first.");
         return;
     }
-    console.log("User authentication status:", status);
-    console.log("User session:", session);
 
     try {
         const response = await fetch('/api/favorites', {
@@ -141,7 +127,6 @@ const toggleSearchBox = () => {
         body: JSON.stringify({ userEmail: session?.user?.email, newItem: { teamId } }),
         });
         const data = await response.json();
-        console.log("Response from backend:", data);
         } catch (error) {
         console.error("Error adding favorite:", error);
         alert("Failed to add the team to favorites.");

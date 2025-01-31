@@ -19,9 +19,10 @@ const Header = () => {
         </h1>
 
         {/* Mobile Menu Button */}
+        <div className="sm:hidden text-gray-700 focus:outline-none"></div>
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden text-gray-700 focus:outline-none"
+          className="sm:hidden text-gray-700 focus:outline-none justify-self-end"
         >
           {menuOpen ? <HiX className="w-7 h-7" /> : <HiMenu className="w-7 h-7" />}
         </button>
@@ -29,13 +30,13 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden sm:flex space-x-4 justify-center w-full">
           <Link href="/">
-            <p className="hover:scale-110 transition ease-in-out duration-300">Home</p>
+            <p className="hover:scale-110 font-bold transition ease-in-out duration-300">Home</p>
           </Link>
           <Link href="/leagueSearch">
-            <p className="hover:scale-110 transition ease-in-out duration-300">Leagues</p>
+            <p className="hover:scale-110 font-bold transition ease-in-out duration-300">Leagues</p>
           </Link>
           <Link href="/teamSearch">
-            <p className="hover:scale-110 transition ease-in-out duration-300">Teams</p>
+            <p className="hover:scale-110 font-bold transition ease-in-out duration-300">Teams</p>
           </Link>
         </nav>
 

@@ -14,10 +14,8 @@ const router = useRouter();
 useEffect(() => {
     const fetchTeams = async () => {
       if (!league) return;
-      console.log("Fetching teams for league:", league);
       try {
         const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/teams?league=${league}&season=2024`;
-        console.log(url);
         const options = {
             method: 'GET',
             headers: {
@@ -27,10 +25,8 @@ useEffect(() => {
         };
         const response = await fetch(url, options);
         const data = await response.json();
-        console.log(data);
         const leagueTeams = data.response || [];
         setTeams(leagueTeams);
-        console.log("Teams:", leagueTeams);
       } catch (error) {
         console.error("Error fetching standings:", error);
       }
@@ -99,7 +95,6 @@ useEffect(() => {
         body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
         });
         const data = await response.json();
-        console.log("Response from backend:", data);
         } catch (error) {
         console.error("Error adding favorite:", error);
         alert("Failed to add the team to favorites.");
@@ -107,9 +102,7 @@ useEffect(() => {
     }; 
 
   useEffect(() => {
-    console.log("User authentication status:", status);
     if (status === "authenticated") {
-      console.log("getting favorites");
       getFavorites();
     }
   }, [status]);

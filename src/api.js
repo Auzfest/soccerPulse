@@ -25,15 +25,12 @@ export async function getServerSideProps() {
       console.error(`HTTP error! status: ${res.status}`);
       return {
           props: {
-              soccerPulseData: [], // Return an empty array if there's an error
+              soccerPulseData: [],
           },
       };
   }
-
-  // Parse the response as JSON
   const data = await res.json();
   const soccerPulseData = Array.isArray(data) ? data : data.Items || [];
-  console.log("Fetched Data:", soccerPulseData);
   return {
       props: {
           soccerPulseData,
