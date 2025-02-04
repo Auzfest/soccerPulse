@@ -14,6 +14,10 @@ export default function AccountEdit() {
   const [name, setName] = useState(session?.user?.name || "");
   const [email, setEmail] = useState(session?.user?.email || "");
   const [favorites, setFavorites] = useState({ leagues: [], teams: [] });
+  const [leagueMessages, setLeagueMessages] = useState({});
+  const [teamMessages, setTeamMessages] = useState({});
+  const [leagueErrors, setLeagueErrors] = useState({});
+  const [teamErrors, setTeamErrors] = useState({});
   const [error, setError] = useState(null);
 
   async function fetchAccount () {
@@ -37,6 +41,7 @@ export default function AccountEdit() {
         const leagueIds = data[0].Favorites[0] || [];
         const leaguesData = await Promise.all(
           leagueIds.map(async (leagueId) => {
+              if (leagueId == 0) return 0;
               const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/standings?league=${leagueId}&season=2024`;
               const options = {
                   method: 'GET',
@@ -58,6 +63,7 @@ export default function AccountEdit() {
         const teamsData = data[0].Favorites[1] || [];
         const teamsWithNames = await Promise.all(
           teamsData.map(async ([leagueId, teamId]) => {
+            if (leagueId == 0) return 0;
             const teamInfo = await getSpecificTeam(leagueId, teamId);
             return { 
             name: teamInfo.team.name,
@@ -115,6 +121,11 @@ export default function AccountEdit() {
 
   const handleDeleteFavoriteLeague = async (leagueId) => {
     try {
+      setLeagueMessages((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: null,
+      }));
+
       const updatedFavorites = { ...favorites };
 
       setFavorites(updatedFavorites);
@@ -130,17 +141,28 @@ export default function AccountEdit() {
           LeagueId: leagueId,
         }),
       });
-      if (!response.ok) {
-        throw new Error("Failed to delete favorite");
-      }
+
+      setLeagueMessages((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: "Favorite deleted successfully",
+      }));
+
       fetchAccount();
     } catch (error) {
       console.error("Error deleting favorite:", error);
+      setLeagueMessages((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: error.message,
+      }));
     }
   };
 
   const handleDeleteFavoriteTeam = async (leagueId, teamId) => {
     try {
+      setTeamErrors((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: null,
+      }));
       const updatedFavorites = { ...favorites };
 
       setFavorites(updatedFavorites);
@@ -162,9 +184,19 @@ export default function AccountEdit() {
       if (!response.ok) {
         throw new Error("Failed to delete favorite");
       }
+
+      setTeamMessages((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: "Favorite deleted successfully",
+      }));
+
       fetchAccount();
     } catch (error) {
       console.error("Error deleting favorite:", error);
+      setTeamMessages((prevMessages) => ({
+        ...prevMessages,
+        [leagueId]: error.message,
+      }));
     }
   };
 
@@ -176,9 +208,9 @@ export default function AccountEdit() {
     );
 
   return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen mb-8">
         <Header />
-        <div className="max-w-5xl mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg">
+        <div className="max-w-5xl mx-auto mt-8 p-6 bg-slate-200 shadow-lg rounded-lg">
           <h1 className="text-3xl font-semibold text-center text-gray-800">Edit Account</h1>
           {error && <p className="text-red-500 text-center mt-2">{error}</p>}
           <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -210,12 +242,13 @@ export default function AccountEdit() {
         </div>
   
         {/* Favorites Section */}
-        <div className="max-w-5xl mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg">
+        <div className="max-w-5xl mx-auto mt-8 p-6 bg-slate-200 shadow-lg rounded-lg">
           <h2 className="text-2xl font-semibold text-center text-gray-800">Your Favorites</h2>
   
           {/* Leagues Section */}
           <h3 className="text-xl font-semibold mt-6 text-gray-700">Leagues</h3>
-          {favorites.leagues.length > 0 ? (
+          {console.log(favorites.teams)}
+          {favorites.leagues.length > 0 && favorites.leagues[0] != 0 ? (
             <ul className="mt-4 space-y-2">
               {favorites.leagues.map((league, index) => (
                 <li
@@ -223,6 +256,11 @@ export default function AccountEdit() {
                   className="flex justify-between items-center p-4 bg-gray-100 rounded-md shadow-sm"
                 >
                   <span className="text-gray-800">{league.name}</span>
+                  {leagueMessages[league.leagueId] && (
+                    <p className={`text-sm mt-1 ${leagueMessages[league.leagueId] === "Successfully deleted!" ? "text-green-500" : "text-red-500"}`}>
+                      {leagueMessages[league.leagueId]}
+                    </p>
+                  )}
                   <button
                     onClick={() => handleDeleteFavoriteLeague(league.leagueId)}
                     className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
@@ -238,7 +276,7 @@ export default function AccountEdit() {
   
           {/* Teams Section */}
           <h3 className="text-xl font-semibold mt-6 text-gray-700">Teams</h3>
-          {favorites.teams.length > 0 ? (
+          {favorites.teams.length > 0 && favorites.teams[0] != 0 ? (
             <ul className="mt-4 space-y-2">
               {favorites.teams.map((team, index) => (
                 <li
@@ -246,6 +284,11 @@ export default function AccountEdit() {
                   className="flex justify-between items-center p-4 bg-gray-100 rounded-md shadow-sm"
                 >
                   <span className="text-gray-800">{team.name}</span>
+                  {teamMessages[`${team.leagueId}-${team.teamId}`] && (
+                    <p className={`text-sm mt-1 ${teamMessages[`${team.leagueId}-${team.teamId}`] === "Successfully deleted!" ? "text-green-500" : "text-red-500"}`}>
+                      {teamMessages[`${team.leagueId}-${team.teamId}`]}
+                    </p>
+                  )}
                   <button
                     onClick={() => handleDeleteFavoriteTeam(team.leagueId, team.teamId)}
                     className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"

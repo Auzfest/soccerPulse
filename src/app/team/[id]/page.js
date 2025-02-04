@@ -19,8 +19,8 @@ export default function TeamDetails() {
     const teamId = parseInt(rawTeamId, 10);
     const leagueId = parseInt(rawLeagueId, 10);
     const [teamData, setTeamData] = useState(null);
-    const [favorites, setFavorites] = useState([]);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteMessage, setFavoriteMessage] = useState(null);
 
     const getFavorites = async () => {
         const response = await fetch('/api/favorites', {
@@ -60,9 +60,11 @@ export default function TeamDetails() {
             body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
             });
             const data = await response.json();
+            setFavoriteMessage("Successfully added to favorites!");
+            setIsFavorite(true);
             } catch (error) {
             console.error("Error adding favorite:", error);
-            alert("Failed to add the team to favorites.");
+            setFavoriteMessage("Failed to add to favorites.", error);
             }
         }; 
 
@@ -206,13 +208,19 @@ export default function TeamDetails() {
 
   
             {/* Favorite Button */}
-            {status === "authenticated" && !isFavorite && (
-              <button
-                onClick={() => handleAddFavorite(leagueId, teamId)}
-                className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition ease-in-out duration-300 mx-auto"
-              >
-                Add to Favorites
-              </button>
+            {status === "authenticated" && (
+            <>
+              {!isFavorite ? (
+                <button
+                  onClick={() => handleAddFavorite(leagueId, teamId)}
+                  className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition ease-in-out duration-300 mx-auto"
+                >
+                  Add to Favorites
+                </button>
+              ) : (
+                <p className="mt-4 text-green-600 font-semibold">{favoriteMessage}</p>
+              )}
+            </>
             )}
           </div>
             <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">

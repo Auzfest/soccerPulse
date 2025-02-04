@@ -2,14 +2,15 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Suspense, lazy } from "react";
 import Header from '../components/header';
-import StandingsWidget from '../components/standingsWidget';
-import TeamsWidget from '../components/teamsWidget';
-import GamesWidget from '../components/gamesWidget';
+const StandingsWidget = lazy(() => import('../components/standingsWidget'));
+const TeamsWidget = lazy(() => import('../components/teamsWidget'));
+const GamesWidget = lazy(() => import('../components/gamesWidget'));
+const LoadingScreen = lazy(() => import("../components/loadingScreen"));
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import { useMediaQuery } from 'react-responsive';
-import LoadingScreen from "../components/loadingScreen";
 import Link from 'next/link';
 
 export default function AccountHome() {
@@ -95,6 +96,7 @@ export default function AccountHome() {
           <h1 className="text-xl font-bold mb-4">Teams</h1>
           {favorites.teams.length > 0 ? (
             loadedWidgets.includes(TeamsWidget) ? (
+              <Suspense fallback={<p>Loading...</p>}>
               <Swiper
                 spaceBetween={20}
                 slidesPerView={1}
@@ -113,6 +115,7 @@ export default function AccountHome() {
                   )
                 ))}
               </Swiper>
+              </Suspense>
             ) : (
               <p>Loading teams...</p>
             ) 
