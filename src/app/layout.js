@@ -21,8 +21,10 @@ import { SessionProvider } from 'next-auth/react';
 
 export default function RootLayout({ children }) {
   return (
+    
     <html lang="en">
-    <body>
+    <body className="">
+      <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet"></link>
         <SessionProvider>{children}</SessionProvider>
     </body>
 </html>

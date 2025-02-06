@@ -253,7 +253,7 @@ export default function AccountEdit() {
               {favorites.leagues.map((league, index) => (
                 <li
                   key={index}
-                  className="flex justify-between items-center p-4 bg-gray-100 rounded-md shadow-sm"
+                  className="flex justify-between items-center p-4 bg-white rounded-md shadow-sm"
                 >
                   <span className="text-gray-800">{league.name}</span>
                   {leagueMessages[league.leagueId] && (
@@ -281,7 +281,7 @@ export default function AccountEdit() {
               {favorites.teams.map((team, index) => (
                 <li
                   key={index}
-                  className="flex justify-between items-center p-4 bg-gray-100 rounded-md shadow-sm"
+                  className="flex justify-between items-center p-4 bg-white rounded-md shadow-sm"
                 >
                   <span className="text-gray-800">{team.name}</span>
                   {teamMessages[`${team.leagueId}-${team.teamId}`] && (

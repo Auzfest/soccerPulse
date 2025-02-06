@@ -13,28 +13,12 @@ export default function teamWidget({ teams }) {
       }
     
       return (
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          gap: '10px',
-        }}>
-          <Swiper
-            spaceBetween={50}
-            slidesPerView={1}
-            navigation={true}
-            modules={[Navigation, Pagination]}
-            pagination={{ clickable: true }}
-            loop={true}
-          >
+        <div className='flex flex-wrap justify-center gap-[10px]'>
           {team.map((teamed, index) => (
-            <SwiperSlide key={index}>
-              <div className=' mx-auto border border-gray-300 rounded-md p-4 bg-gray-300'>
-                <TeamWidget key={index} leagueId={teamed.leagueId} teamId={teamed.teamId} />
-              </div>
-            </SwiperSlide>
+            <div className=' mx-auto border border-gray-300 rounded-md p-4 bg-gray-300 w-full' key={index}>
+              <TeamWidget key={index} leagueId={teamed.leagueId} teamId={teamed.teamId} />
+            </div>
           ))}
-          </Swiper>
         </div>
   );
 }

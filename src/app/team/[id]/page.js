@@ -101,7 +101,7 @@ export default function TeamDetails() {
         );
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen mb-8">
         <Header />
         <div 
             className="min-h-screen bg-auto bg-top bg-no-repeat items-center justify-center mt-8"
@@ -127,6 +127,21 @@ export default function TeamDetails() {
                 <p className="text-gray-600 text-lg">Country: {teamData.league.country}</p>
             </div>
         </div>
+      {/* Favorite Button */}
+      {status === "authenticated" && (
+      <>
+        {!isFavorite ? (
+          <button
+            onClick={() => handleAddFavorite(leagueId, teamId)}
+            className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition ease-in-out duration-300 mx-auto"
+          >
+            Add to Favorites
+          </button>
+        ) : (
+          <p className="mt-4 text-green-600 font-semibold">{favoriteMessage}</p>
+        )}
+      </>
+      )}
 
             {/* Team Statistics */}
 <div className="mt-8 bg-slate-200 shadow-md rounded-lg p-6">
@@ -205,23 +220,6 @@ export default function TeamDetails() {
     </p>
   </div>
 </div>
-
-  
-            {/* Favorite Button */}
-            {status === "authenticated" && (
-            <>
-              {!isFavorite ? (
-                <button
-                  onClick={() => handleAddFavorite(leagueId, teamId)}
-                  className="mt-6 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded transition ease-in-out duration-300 mx-auto"
-                >
-                  Add to Favorites
-                </button>
-              ) : (
-                <p className="mt-4 text-green-600 font-semibold">{favoriteMessage}</p>
-              )}
-            </>
-            )}
           </div>
             <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
                 <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>

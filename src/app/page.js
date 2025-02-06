@@ -38,7 +38,7 @@ export default function HomePage() {
           </p>
           <br />
           <div className="grid grid-cols-2 lg:w-[20%] sm:w-full mx-auto mt-4 text-center justify-center items-center">
-          <a href="/signin">
+          <a href="/login">
               <button className="col-start-1 mx-auto sm:block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition ease-in-out duration-300">
                 Log In
               </button>

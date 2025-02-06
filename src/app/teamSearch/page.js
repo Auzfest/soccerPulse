@@ -186,7 +186,9 @@ const toggleSearchBox = () => {
               {isOpen ? "▼" : "▲"}
         </div>
       </div>
-          <TeamSearchWidget league={selectedLeague} />
+      <div className="p-8">
+        <TeamSearchWidget league={selectedLeague} />
+      </div>
       </div>
     </div>
   );
