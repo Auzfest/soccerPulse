@@ -26,6 +26,7 @@ useEffect(() => {
         const response = await fetch(url, options);
         const data = await response.json();
         const leagueTeams = data.response || [];
+        leagueTeams.sort((a, b) => a.team.name.localeCompare(b.team.name));
         setTeams(leagueTeams);
       } catch (error) {
         console.error("Error fetching standings:", error);
@@ -88,15 +89,15 @@ useEffect(() => {
         }
 
         const response = await fetch('/api/favorites', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
         });
         setFavorites((prevFavorites) => [...prevFavorites, [leagueId, teamId]]);
         } catch (error) {
-        console.error("Error adding favorite:", error);
+          console.error("Error adding favorite:", error);
         }
     }; 
 
@@ -144,13 +145,15 @@ useEffect(() => {
               View More Details
             </button>
 
-            {status === "authenticated" && !isTeamFavorite(team.team.id) && (
+            {status === "authenticated" && !isTeamFavorite(team.team.id) ? (
               <button
                 onClick={() => handleAddFavorite(league, team.team.id)}
                 className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
               >
                 Add as Favorite
               </button>
+            ) : (
+              <p>This team is already in your favorites</p>
             )}
           </div>
         </div>

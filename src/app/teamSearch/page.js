@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from 'next-auth/react';
-import { fetchCountries, fetchLeagues, getTeams, getSpecificTeam, toggleSearchBox } from '../../footballapi';
+import { fetchCountries, fetchLeagues } from '../../footballapi';
 import Header from '../components/header';
+import TeamsWidget from '../components/teamsWidget';
 import TeamSearchWidget from '../components/teamSearchWidget';
-import GamesWidget from "../components/gamesWidget";
-
 import { useRouter } from 'next/navigation';
+import Footer from "../components/footer";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -133,63 +133,53 @@ const toggleSearchBox = () => {
   return (
     <div>
       <Header />
-      <div>
-        <div id="searchSection" className="bg-slate-200 shadow-lg rounded-lg p-6 max-w-lg mx-auto my-6">
-        <section className="text-center">
-          <h3 className="text-2xl font-bold text-gray-800">Search for a Team</h3>
-          <p className="text-gray-600 mt-2">Click the arrow below to search for a specific league to view its teams.</p>
+      <div id="searchSection" className="bg-slate-200 shadow-lg rounded-lg p-6 max-w-lg mx-auto my-6">
+    <section className="text-center">
+      <h3 className="text-2xl font-bold text-gray-800">Select a Country and League</h3>
 
-            <div id="search-box" className="hidden mt-4">
-              {countries.length > 0 && (
-                <div className="mb-4">
-                  <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country</label>
-                  <select 
-                    id="countries" 
-                    onChange={handleCountryChange} 
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
-                  >
-                    <option value="" className="text-gray-500">--Select Country--</option>
-                    {countries.map((country) => (
-                      <option key={country.code} value={country.code} className="text-gray-900">
-                        {country.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              {countries.length > 0 && (
-                <div className="mb-4">
-                  <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League</label>
-                  <select 
-                    id="leagues" 
-                    onChange={handleLeagueChange} 
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
-                  >
-                    <option value="39" className="text-gray-500">--Select League--</option>
-                    {leagues.map((league) => (
-                      <option key={league.league.id} value={league.league.id} className="text-gray-900">
-                        {league.league.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-          </section>
-
-        {/* Toggle Search Button */}
-        <div id="toggle-button" 
-            onClick={toggleSearchBox} 
-            className="cursor-pointer text-gray-700 text-2xl text-center mt-4 transition-transform hover:scale-105"
+      <div id="search-box" className="mt-4">
+        {countries.length > 0 && (
+          <div className="mb-4">
+            <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country *</label>
+            <select 
+              id="countries" 
+              onChange={handleCountryChange} 
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
             >
-              {isOpen ? "▼" : "▲"}
-        </div>
+              <option value="" className="text-gray-500">--Select Country--</option>
+              {countries.map((country) => (
+                <option key={country.code} value={country.code} className="text-gray-900">
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {countries.length > 0 && (
+          <div className="mb-4">
+            <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League *</label>
+            <select 
+              id="leagues" 
+              onChange={handleLeagueChange} 
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-200 text-gray-900"
+            >
+              <option value="39" className="text-gray-500">--Select League--</option>
+              {leagues.map((league) => (
+                <option key={league.league.id} value={league.league.id} className="text-gray-900">
+                  {league.league.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
+    </section>
+    </div>
       <div className="p-8">
         <TeamSearchWidget league={selectedLeague} />
       </div>
-      </div>
+      <Footer />
     </div>
   );
 }

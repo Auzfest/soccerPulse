@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Suspense, lazy } from "react";
 import Header from '../components/header';
+import Footer from '../components/footer';
 const StandingsWidget = lazy(() => import('../components/standingsWidget'));
 const TeamsWidget = lazy(() => import('../components/teamsWidget'));
 const GamesWidget = lazy(() => import('../components/gamesWidget'));
@@ -169,6 +170,7 @@ export default function AccountHome() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );  
 };

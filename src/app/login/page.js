@@ -4,28 +4,41 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import Header from '../components/header';
+import Footer from '../components/footer';
+import LoadingScreen from '../components/loadingScreen';
 
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const router = useRouter();
 
     const handleLogin = async (e) => {
+        setLoading(true);
         e.preventDefault();
         const result = await signIn('credentials', {
           redirect: false,
           email,
           password,
         });
-    
+        setLoading(false);
+
         if (result?.error) {
-          setError(result.error);
+          setError("Invalid email or password. Please try again.");
         } else {
           router.push('/accountHome');
         }
       };
+
+      if (loading) { return (
+        <div className="min-h-screen bg-gray-100">
+          <Header />
+          <LoadingScreen />
+        </div>
+        );
+      }
 
     return (
         <div>
@@ -35,7 +48,7 @@ export default function LoginPage() {
                     <h1 className="text-2xl font-bold text-center text-gray-800">Login</h1>
                     <form onSubmit={handleLogin} className="mt-4">
                         <div className="mb-4">
-                            <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
+                            <label htmlFor="email" className="block text-gray-700 font-semibold">Email *</label>
                             <input
                                 type="email"
                                 id="email"
@@ -46,7 +59,7 @@ export default function LoginPage() {
                             />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="password" className="block text-gray-700 font-semibold">Password</label>
+                            <label htmlFor="password" className="block text-gray-700 font-semibold">Password *</label>
                             <input
                                 type="password"
                                 id="password"
@@ -69,6 +82,7 @@ export default function LoginPage() {
                     </p>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }

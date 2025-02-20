@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Header from "../components/header";
+import Footer from "../components/footer";
 import { getTeams, getSpecificTeam } from "../../footballapi";
 import LoadingScreen from "../components/loadingScreen";
 
@@ -96,7 +97,7 @@ export default function AccountEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
+    setLoading(true);
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/editAccount`, {
             method: "POST",
@@ -114,6 +115,7 @@ export default function AccountEdit() {
           if (!response.ok) {
             throw new Error(result.message || "Something went wrong");
           }
+          setLoading(false);
     } catch (error) {
       setError(error.message);
     }
@@ -157,6 +159,32 @@ export default function AccountEdit() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/deleteAccount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: session?.user?.email }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete account");
+      }
+  
+      alert("Your account has been deleted.");
+      router.push("/login"); // Redirect to login page
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("An error occurred while deleting your account.");
+    }
+  };
+
   const handleDeleteFavoriteTeam = async (leagueId, teamId) => {
     try {
       setTeamErrors((prevMessages) => ({
@@ -182,17 +210,17 @@ export default function AccountEdit() {
         }),
       });
       if (!response.ok) {
-        throw new Error("Failed to delete favorite");
+        throw new Error("Failed to unfavorite");
       }
 
       setTeamMessages((prevMessages) => ({
         ...prevMessages,
-        [leagueId]: "Favorite deleted successfully",
+        [leagueId]: "Unfavorited successfully",
       }));
 
       fetchAccount();
     } catch (error) {
-      console.error("Error deleting favorite:", error);
+      console.error("Error unfavoriting:", error);
       setTeamMessages((prevMessages) => ({
         ...prevMessages,
         [leagueId]: error.message,
@@ -208,7 +236,7 @@ export default function AccountEdit() {
     );
 
   return (
-        <div className="min-h-screen mb-8">
+        <div className="min-h-screen">
         <Header />
         <div className="max-w-5xl mx-auto mt-8 p-6 bg-slate-200 shadow-lg rounded-lg">
           <h1 className="text-3xl font-semibold text-center text-gray-800">Edit Account</h1>
@@ -240,7 +268,6 @@ export default function AccountEdit() {
             </button>
           </form>
         </div>
-  
         {/* Favorites Section */}
         <div className="max-w-5xl mx-auto mt-8 p-6 bg-slate-200 shadow-lg rounded-lg">
           <h2 className="text-2xl font-semibold text-center text-gray-800">Your Favorites</h2>
@@ -265,7 +292,7 @@ export default function AccountEdit() {
                     onClick={() => handleDeleteFavoriteLeague(league.leagueId)}
                     className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
                   >
-                    Delete
+                    Unfavorite
                   </button>
                 </li>
               ))}
@@ -293,7 +320,7 @@ export default function AccountEdit() {
                     onClick={() => handleDeleteFavoriteTeam(team.leagueId, team.teamId)}
                     className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
                   >
-                    Delete
+                    Unfavorite
                   </button>
                 </li>
               ))}
@@ -302,6 +329,16 @@ export default function AccountEdit() {
             <p className="text-gray-500 mt-2">No favorite teams</p>
           )}
         </div>
+        <div className="max-w-5xl mx-auto mt-8 p-6 bg-slate-200 shadow-lg rounded-lg text-center">
+        <p className="mt-4 text-gray-600 font-semibold"> Warning: This action cannot be undone. </p>
+          <button
+            onClick={handleDeleteAccount}
+            className="bg-red-600 text-white font-semibold p-2 rounded-md hover:bg-red-700 transition mt-4"
+          >
+            Delete Account
+          </button>  
+        </div>
+        <Footer />
       </div>
   );
 }

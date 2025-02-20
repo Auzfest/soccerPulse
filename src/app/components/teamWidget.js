@@ -124,8 +124,8 @@ export default function TeamWidget({ leagueId, teamId }) {
   <div className=" text-center">
     <p className="text-xl font-bold">
       Goal Difference: 
-      <span className={(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2) >= 0 ? "text-green-600" : "text-red-600"}>
-        {" "}{(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2)}
+      <span className={(teamData.goals.for.total.total - teamData.goals.against.total.total) >= 0 ? "text-green-600" : "text-red-600"}>
+        {" "}{(teamData.goals.for.total.total - teamData.goals.against.total.total)}
       </span>
     </p>
   </div>

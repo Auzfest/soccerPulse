@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { fetchCountries, fetchLeagues, getTeams, getSpecificTeam, toggleSearchBox } from '../../footballapi';
 import Header from '../components/header';
+import Footer from '../components/footer';
 import StandingsWidget from '../components/standingsWidget';
 
 export default function Home() {
@@ -134,13 +135,12 @@ const getFavorites = async () => {
     <Header />
     <div id="searchSection" className="bg-slate-200 shadow-lg rounded-lg p-6 max-w-lg mx-auto my-6">
     <section className="text-center">
-      <h3 className="text-2xl font-bold text-gray-800">Search for a League</h3>
-      <p className="text-gray-600 mt-2">Click the arrow below to search for a specific league.</p>
+      <h3 className="text-2xl font-bold text-gray-800">Select a Country and League</h3>
 
-      <div id="search-box" className="hidden mt-4">
+      <div id="search-box" className="mt-4">
         {countries.length > 0 && (
           <div className="mb-4">
-            <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country</label>
+            <label htmlFor="countries" className="block text-gray-700 font-semibold">Select Country *</label>
             <select 
               id="countries" 
               onChange={handleCountryChange} 
@@ -158,7 +158,7 @@ const getFavorites = async () => {
 
         {countries.length > 0 && (
           <div className="mb-4">
-            <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League</label>
+            <label htmlFor="leagues" className="block text-gray-700 font-semibold">Select League *</label>
             <select 
               id="leagues" 
               onChange={handleLeagueChange} 
@@ -173,8 +173,7 @@ const getFavorites = async () => {
             </select>
           </div>
         )}
-
-        {status === "authenticated" && !isFavorite && !isFavoriteButtonDisabled && (
+        {status === "authenticated" && !isFavorite && !isFavoriteButtonDisabled ? (
           <button
             onClick={() => handleAddFavorite(selectedLeague)}
             disabled={!selectedLeague}
@@ -182,21 +181,16 @@ const getFavorites = async () => {
           >
             Add as Favorite
           </button>
+        ) : (
+          <p>This league is already a favorite</p>
         )}
       </div>
     </section>
-
-  {/* Toggle Search Button */}
-  <div id="toggle-button" 
-       onClick={toggleSearchBox} 
-       className="cursor-pointer text-gray-700 text-2xl text-center mt-4 transition-transform hover:scale-105"
-       >
-         {isOpen ? "▼" : "▲"}
   </div>
-</div>
-  <div className="p-8">
+  <div className="p-16 max-w-4xl lg:mx-auto">
     <StandingsWidget league={selectedLeague} />
-    </div>
+  </div>
+  <Footer />
 </div>
   );
 }

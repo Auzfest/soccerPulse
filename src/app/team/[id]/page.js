@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { getSpecificTeam } from '../../../footballapi';
 import Header from '../../components/header';
+import Footer from '../../components/footer';
 import LoadingScreen from "../../components/loadingScreen";
 import GamesWidget from '@/app/components/gamesWidget';
 
@@ -235,6 +236,7 @@ export default function TeamDetails() {
                 ))}
             </ul> */}
         </div>
+        <Footer />
       </div>
     );
 }

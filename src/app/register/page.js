@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '../components/header';
-
+import Footer from '../components/footer';
+import LoadingScreen from '../components/loadingScreen';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const router = useRouter();
 
@@ -36,6 +38,15 @@ export default function RegisterPage() {
         }
     };
 
+    if (loading) {
+        return (
+            <div>
+                <Header />
+                <LoadingScreen />
+            </div>   
+        );
+    }
+
     return (
         <div>
             <Header />
@@ -44,7 +55,7 @@ export default function RegisterPage() {
                     <h1 className="text-2xl font-bold text-center text-gray-800">Register</h1>
                     <form onSubmit={handleRegister} className="mt-4">
                         <div className="mb-4">
-                            <label htmlFor="name" className="block text-gray-700 font-semibold">Name</label>
+                            <label htmlFor="name" className="block text-gray-700 font-semibold">Name *</label>
                             <input
                                 type="text"
                                 id="name"
@@ -55,7 +66,7 @@ export default function RegisterPage() {
                             />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
+                            <label htmlFor="email" className="block text-gray-700 font-semibold">Email *</label>
                             <input
                                 type="email"
                                 id="email"
@@ -66,7 +77,7 @@ export default function RegisterPage() {
                             />
                         </div>
                         <div className="mb-4">
-                            <label htmlFor="password" className="block text-gray-700 font-semibold">Password</label>
+                            <label htmlFor="password" className="block text-gray-700 font-semibold">Password *</label>
                             <input
                                 type="password"
                                 id="password"
@@ -89,6 +100,7 @@ export default function RegisterPage() {
                     </p>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }
