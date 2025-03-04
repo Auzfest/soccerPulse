@@ -1,15 +1,16 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { fetchStandings } from '../../footballapi';
 
 
-const StandingsWidget = ({ league }) => {
+const StandingsWidget = ({ league, teamArray }) => {
 const [chosenLeague, setChosenLeague] = useState(null);
 const [standings, setStandings] = useState([]);
 const [sortConfig, setSortConfig] = useState({ key: null, direction: 'default' });
 const [defaultStandings, setDefaultStandings] = useState([]);
 const [failure, setFailure] = useState(false);
-
 const columnKeyMap = {
+  highlight: "",
   rank: "rank",
   team: "team.name",
   P: "points",
@@ -22,32 +23,38 @@ const columnKeyMap = {
   GD: "goalDifference",
 };
 
-useEffect(() => {
-    const fetchStandings = async () => {
-      if (!league) return;
-      try {
-        const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/standings?league=${league}&season=2024`;
-        const options = {
-            method: 'GET',
-            headers: {
-                'x-rapidapi-host': process.env.NEXT_PUBLIC_API_HOST,
-                'x-rapidapi-key': process.env.NEXT_PUBLIC_API_KEY,
-            },
-        };
-        const response = await fetch(url, options);
-        const data = await response.json();
-        setChosenLeague(data.response[0]?.league);
-        console.log(data.response[0]);
-        const leagueStandings = data.response[0]?.league?.standings[0] || [];
-        setStandings(leagueStandings);
-        setDefaultStandings(leagueStandings);
-      } catch (error) {
-        console.error("Error fetching standings:", error);
-        setFailure(true);
-      }
-    };
+const getSecondNumbers = (teamArray) => {
+  if (!Array.isArray(teamArray) || teamArray.length === 0) return [];
 
-    fetchStandings();
+  return teamArray.map(item => {
+      if (Array.isArray(item)) {
+          return parseInt(teamArray); 
+      } else if (typeof item === 'object' && item !== null) {
+          return parseInt(Object.values(item)[1]); 
+      }
+      return null;
+  }).filter(num => num !== null);
+};
+
+const [teamIds, setTeamIds] = useState(getSecondNumbers(teamArray) || []);
+console.log(teamIds);
+
+useEffect(() => {
+  const fetchStandingsData = async () => {
+
+    const data = await fetchStandings(league);
+    console.log(data.standings);
+    if (!data) {
+      setFailure(true);
+    }
+    else if (data) {
+      setChosenLeague(data);
+      console.log(data.standings[0]);
+      setStandings(data.standings[0]);
+      setDefaultStandings(data.standings[0]);
+    }
+  };
+  fetchStandingsData();
   }, [league]);
 
   const handleSort = (key) => {
@@ -87,7 +94,6 @@ useEffect(() => {
     }
   };
 
-
   if (failure) {
     return (
       <div style={{
@@ -112,31 +118,33 @@ useEffect(() => {
   return (
     <div className='mx-auto border-2 border-gray-400 rounded-md transition ease-in-out duration-500'>
       <div className="overflow-x-auto">
-      <div className="flex justify-center items-center  bg-gray-400 text-center p-4">
+      <div className="flex justify-center items-center  bg-gray-400 text-center p-4 w-full">
         <img src={chosenLeague?.logo} alt={chosenLeague?.name} className="w-24 h-24 object-contain bg-gray-400" />
       </div>
       <table className="table-auto w-full text-sm text-black border-collapse p-2">
-        <thead className="bg-gray-400">
-            <tr className='border-b-2 border-gray-400'>
-            {['rank', 'team', 'P', 'M', 'W', 'D', 'L', 'GF', 'GA', 'GD'].map((key) => (
+      <thead className="bg-gray-400">
+        <tr className='border-b-2 border-gray-400'>
+          <th className="w-2 p-0"></th>
+          {['rank', 'team', 'P', 'M', 'W', 'D', 'L', 'GF', 'GA', 'GD'].map((key) => (
               <th 
-                key={key} 
-                className="p-1 cursor-pointer max-w-max" 
-                onClick={() => handleSort(key)}
+                  key={key} 
+                  className="p-[0.2rem] cursor-pointer max-w-max text-center" 
+                  onClick={() => handleSort(key)}
               >
-                {key.toUpperCase()} {sortConfig.key === key ? (sortConfig.direction === 'asc' ? '▲' : sortConfig.direction === 'desc' ? '▼' : sortConfig.direction === 'default' ? '—' : '') : '—'}
+                  {key.toUpperCase()} {sortConfig.key === key ? (sortConfig.direction === 'asc' ? '▲' : sortConfig.direction === 'desc' ? '▼' : '—') : '—'}
               </th>
-            ))}
-          </tr>
-        </thead>
+          ))}
+        </tr>
+      </thead>
         <tbody>
           {standings.map((team) => (
-            <tr key={team.team.id} className="even:bg-gray-100 odd:bg-gray-300">
+            <tr key={team.team.id} className={`even:bg-gray-100 odd:bg-gray-300 ${teamIds.includes(team.team.id) ? 'bg-yellow-300' : ''}`}>
+              <td className={`${teamIds.includes(team.team.id) ? 'bg-yellow-200 w-1' : ''}`}></td>
               <td className=" text-center">{team.rank}</td>
               <td key={team.team.id} className=" flex flex-col items-center pt-1">
                   <Link href={`/team/${team.team.id}-${league}`} className="flex flex-col items-center">
-                    <img src={team.team.logo} alt={team.team.name} className="w-8 h-8 mb-2" />
-                    <span>{team.team.name}</span>
+                    <img src={team.team.logo} alt={team.team.name} className="w-4 h-4 mb-2 sm:w-8 sm:h-8" />
+                    <span className="text-xs">{team.team.name}</span>
                   </Link>
               </td>
               <td className="p-0 text-center">{team.points}</td>

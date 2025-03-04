@@ -90,6 +90,28 @@ export const fetchLeagues = async (countryCode) => {
     }
 };
 
+export const fetchStandings = async (league) => {
+    if (!league) return;
+    try {
+      const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/standings?league=${league}&season=2024`;
+      const options = {
+          method: 'GET',
+          headers: {
+              'x-rapidapi-host': process.env.NEXT_PUBLIC_API_HOST,
+              'x-rapidapi-key': process.env.NEXT_PUBLIC_API_KEY,
+          },
+      };
+      const response = await fetch(url, options);
+      const data = await response.json();
+      const leagueStandings = data.response[0]?.league || [];
+      console.log(leagueStandings);
+      return leagueStandings;
+    } catch (error) {
+      console.error("Error fetching standings:", error);
+      return [];
+    }
+  };
+
 // Fetch teams based on the selected league
 export const getTeams = async (leagueId) => {
     const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/teams?league=${leagueId}&season=2024`;
@@ -155,3 +177,27 @@ export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
     }
   };
   
+  export const getTeam = async({teamId}) => {
+    console.log(teamId);
+    const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/players/squads?team=${teamId}`;
+    const options = {
+        method: 'GET',
+        headers: {
+            "x-rapidapi-host": process.env.NEXT_PUBLIC_API_HOST,
+            "x-rapidapi-key": process.env.NEXT_PUBLIC_API_KEY,
+        },
+    };
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch players: ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        return data.response[0]?.players || [];
+    } catch (error) {
+        console.error("Error fetching players:", error);
+        return [];
+    }
+}

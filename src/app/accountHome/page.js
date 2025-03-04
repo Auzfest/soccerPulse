@@ -157,7 +157,7 @@ export default function AccountHome() {
                 {favorites.leagues.map((league, index) => (
                   <SwiperSlide key={index}>
                     <div className=' px-12 mx-auto rounded-md'>
-                      <StandingsWidget league={league} />
+                      <StandingsWidget league={league} teamArray={favorites.teams} />
                     </div>
                   </SwiperSlide>
                 ))}

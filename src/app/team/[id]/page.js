@@ -9,6 +9,9 @@ import Header from '../../components/header';
 import Footer from '../../components/footer';
 import LoadingScreen from "../../components/loadingScreen";
 import GamesWidget from '@/app/components/gamesWidget';
+import PlayerWidget from '@/app/components/playerWidget';
+import StandingsWidget from '@/app/components/standingsWidget';
+import FavoriteLeagueModal from '@/app/components/favoriteLeagueModal';
 
 export default function TeamDetails() {
     const router = useRouter();
@@ -21,6 +24,8 @@ export default function TeamDetails() {
     const leagueId = parseInt(rawLeagueId, 10);
     const [teamData, setTeamData] = useState(null);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [isLeagueFavorite, setIsLeagueFavorite] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [favoriteMessage, setFavoriteMessage] = useState(null);
 
     const getFavorites = async () => {
@@ -43,6 +48,11 @@ export default function TeamDetails() {
                 setIsFavorite(true);
             }
         }
+        for (const favorite of data[0].Favorites[0]) {
+            if (favorite[0] === leagueIdString && favorite[1] === teamIdString) {
+                setIsLeagueFavorite(true);
+            }
+        }
         setLoading(false);
     };
 
@@ -61,6 +71,11 @@ export default function TeamDetails() {
             body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId, teamId } }),
             });
             const data = await response.json();
+
+            if (!isLeagueFavorite) {
+              setShowModal(true);
+            }
+
             setFavoriteMessage("Successfully added to favorites!");
             setIsFavorite(true);
             } catch (error) {
@@ -84,6 +99,25 @@ export default function TeamDetails() {
         }
     }, [id]);
 
+    const handleAddLeagueFavorite = async (leagueId) => {
+      if (!leagueId) {
+          alert("Please select a league first.");
+          return;
+      }
+      try {
+          const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId } }),
+          });
+          setShowModal(false);
+        } catch (error) {
+          console.error("Error adding favorite:", error);
+        }
+      }; 
+
     useEffect(() => {
         if (status === "authenticated") {
             getFavorites();
@@ -102,7 +136,7 @@ export default function TeamDetails() {
         );
 
     return (
-        <div className="min-h-screen mb-8">
+        <div className="min-h-screen">
         <Header />
         <div 
             className="min-h-screen bg-auto bg-top bg-no-repeat items-center justify-center mt-8"
@@ -140,6 +174,12 @@ export default function TeamDetails() {
           </button>
         ) : (
           <p className="mt-4 text-green-600 font-semibold">{favoriteMessage}</p>
+        )}
+        {showModal && (
+          <FavoriteLeagueModal
+              onClose={() => setShowModal(false)}
+              onConfirm={() => handleAddLeagueFavorite(leagueId)}          
+          />
         )}
       </>
       )}
@@ -216,27 +256,30 @@ export default function TeamDetails() {
     <p className="text-xl font-bold">
       Goal Difference: 
       <span className={(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2) >= 0 ? "text-green-600" : "text-red-600"}>
-        {" "}{(teamData.goals.for.total.total/teamData.goals.against.total.total).toFixed(2)}
+        {" "}{(teamData.goals.for.total.total - teamData.goals.against.total.total)}
       </span>
     </p>
   </div>
 </div>
-          </div>
-            <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
-                <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
-                <div className="h-full">
-                    <GamesWidget teams={teamId} leagues={leagueId} />
-                </div>
-            </div>
-            {/* Future implementation
-            <p>Players:</p>
-            <ul>
-                {teamData.players.map(player => (
-                    <li key={player.id}>{player.name}</li>
-                ))}
-            </ul> */}
+
+  </div>
+    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
+        <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
+        <div className="h-full">
+            <GamesWidget teams={teamId} leagues={leagueId} />
         </div>
-        <Footer />
-      </div>
+    </div>
+  </div>
+  <div className="flex flex-col md:flex-row text-center">
+    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8 mt-4">
+      <h1 className="text-xl font-bold mb-4">Players</h1>
+      <PlayerWidget teamId={teamId} />
+    </div>
+    <div className="order-1 md:order-2 mx-auto max-w-2xl bg-slate-200 rounded-md text-center max-h-fit w-full m-0 lg:w-full p-8 mt-4">
+      <StandingsWidget league={leagueId} teamArray={[teamId]}/>
+    </div>
+  </div>
+<Footer />
+</div>
     );
 }

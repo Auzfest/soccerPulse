@@ -2,12 +2,15 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import handleAddFavorite from '../teamSearch/page';
+import FavoriteLeagueModal from '../components/favoriteLeagueModal';
 import { useRouter } from 'next/navigation';
 
 const TeamSearchWidget = ({ league }) => {
 const [teams, setTeams] = useState([]);
 const [favorites, setFavorites] = useState([]);
 const [isFavorite, setIsFavorite] = useState(false);
+const [isLeagueFavorite, setIsLeagueFavorite] = useState(false);
+const [showModal, setShowModal] = useState(false);
 const { data: session, status } = useSession();
 const router = useRouter();
 
@@ -49,6 +52,11 @@ useEffect(() => {
     }
 
     const data = await response.json();
+    for (const favorite of data[0].Favorites[0]) {
+      if (favorite[0] === league && favorite[1] === league) {
+          setIsLeagueFavorite(true);
+      }
+    }
     setFavorites(data[0].Favorites[1]); 
   };
 
@@ -83,6 +91,10 @@ useEffect(() => {
         const existingFavorites = favoritesData.length > 0 ? favoritesData[0].Favorites || [] : [];
         const isAlreadyFavorite = existingFavorites.some(fav => fav[1] === String(teamId));
 
+        if (!isLeagueFavorite) {
+          setShowModal(true);
+        }
+
         if (isAlreadyFavorite) {
             alert("This team is already in your favorites!");
             return;
@@ -100,6 +112,25 @@ useEffect(() => {
           console.error("Error adding favorite:", error);
         }
     }; 
+
+    const handleAddLeagueFavorite = async (leagueId) => {
+      if (!leagueId) {
+          alert("Please select a league first.");
+          return;
+      }
+      try {
+          const response = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userEmail: session?.user?.email, newItem: { leagueId } }),
+          });
+          setShowModal(false);
+        } catch (error) {
+          console.error("Error adding favorite:", error);
+        }
+      }; 
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -154,6 +185,12 @@ useEffect(() => {
               </button>
             ) : (
               <p>This team is already in your favorites</p>
+            )}
+            {showModal && (
+              <FavoriteLeagueModal
+                onClose={() => setShowModal(false)}
+                onConfirm={() => handleAddLeagueFavorite(league)}              
+              />
             )}
           </div>
         </div>
