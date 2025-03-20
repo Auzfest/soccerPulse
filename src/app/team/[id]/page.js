@@ -9,6 +9,7 @@ import Header from '../../components/header';
 import Footer from '../../components/footer';
 import LoadingScreen from "../../components/loadingScreen";
 import GamesWidget from '@/app/components/gamesWidget';
+import GamesTableWidget from '@/app/components/gamesTableWidget';
 import PlayerWidget from '@/app/components/playerWidget';
 import StandingsWidget from '@/app/components/standingsWidget';
 import FavoriteLeagueModal from '@/app/components/favoriteLeagueModal';
@@ -263,19 +264,26 @@ export default function TeamDetails() {
 </div>
 
   </div>
-    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
+  </div>
+
+  <div className="flex flex-col md:flex-row text-center">
+    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full h-full m-0 lg:w-full p-8">
         <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
         <div className="h-full">
             <GamesWidget teams={teamId} leagues={leagueId} />
         </div>
     </div>
+    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full h-full m-0 lg:w-full p-8 mt-8">
+      <h1 className="text-xl font-bold mb-4">All Games This Season</h1>
+      <GamesTableWidget teamId={teamId} leagueId={leagueId} />
+    </div>
   </div>
-  <div className="flex flex-col md:flex-row text-center">
-    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8 mt-4">
+  <div className="flex flex-col md:flex-row text-center mt-12">
+    <div className="order-2 md:order-3 mx-auto max-w-2xl bg-slate-200 rounded-md text-center w-full h-full m-0 lg:w-full p-8 mt-8">
       <h1 className="text-xl font-bold mb-4">Players</h1>
       <PlayerWidget teamId={teamId} />
     </div>
-    <div className="order-1 md:order-2 mx-auto max-w-2xl bg-slate-200 rounded-md text-center max-h-fit w-full m-0 lg:w-full p-8 mt-4">
+    <div className="order-1 md:order-2 mx-auto max-w-2xl bg-slate-200 rounded-md text-center max-h-fit w-full m-0 lg:w-full p-8 mt-8">
       <StandingsWidget league={leagueId} teamArray={[teamId]}/>
     </div>
   </div>

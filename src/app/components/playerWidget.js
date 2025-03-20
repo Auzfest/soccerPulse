@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PlayerWidget({ teamId }) {
     const [players, setPlayers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [error, setError] = useState(false);
-    const [selectedPlayer, setSelectedPlayer] = useState(null); // Track the selected player
+    const [selectedPlayer, setSelectedPlayer] = useState(null);
 
     useEffect(() => {
         const fetchPlayers = async () => {
@@ -43,7 +44,7 @@ export default function PlayerWidget({ teamId }) {
                 throw new Error(`Failed to fetch players: ${response.statusText}`);
             }
             const data = await response.json();
-            console.log(data);
+            (data);
             return data.response[0]?.players || [];
         } catch (error) {
             console.error("Error fetching players:", error);
@@ -71,9 +72,9 @@ export default function PlayerWidget({ teamId }) {
             }
     
             const data = await response.json();
-            console.log("Fetched Player Stats:", data);
+            ("Fetched Player Stats:", data);
     
-            return data.response[0]?.statistics || []; // Return stats if available
+            return data.response[0]?.statistics || [];
         } catch (error) {
             console.error("Error fetching player statistics:", error);
             return [];
@@ -91,7 +92,10 @@ export default function PlayerWidget({ teamId }) {
 
         fetchPlayerStats();
     }, [selectedPlayer]);
-    
+
+    const toggleExpand = () => {
+        setIsExpanded(!isExpanded);
+    };
 
     if (isLoading) {
         return <p className="text-center text-gray-500">Loading players...</p>;
@@ -101,7 +105,6 @@ export default function PlayerWidget({ teamId }) {
         return <p className="text-center text-red-500">Failed to load players.</p>;
     }
 
-    // If a player is selected, show only that player's details
     if (selectedPlayer) {
         return (
             <div className="bg-gray-300 shadow-md rounded-lg p-6 mt-8 text-center">
@@ -132,10 +135,17 @@ export default function PlayerWidget({ teamId }) {
         );
     }
 
-    // Default view: List all players
     return (
         <div className="bg-gray-300 shadow-md rounded-lg p-6 mt-8">
-            <h2 className="text-2xl font-bold text-center mb-4">Squad Roster</h2>
+            <div className="text-center mb-4">
+                <button
+                    onClick={toggleExpand}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition duration-300"
+                >
+                    {isExpanded ? "Hide Players" : "Show Players"}
+                </button>
+            </div>
+            {isExpanded && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {players.map((player) => (
                     <div 
@@ -155,6 +165,7 @@ export default function PlayerWidget({ teamId }) {
 
                 ))}
             </div>
+            )}
         </div>
     );
 }

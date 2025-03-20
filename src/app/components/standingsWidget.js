@@ -37,19 +37,16 @@ const getSecondNumbers = (teamArray) => {
 };
 
 const [teamIds, setTeamIds] = useState(getSecondNumbers(teamArray) || []);
-console.log(teamIds);
 
 useEffect(() => {
   const fetchStandingsData = async () => {
 
     const data = await fetchStandings(league);
-    console.log(data.standings);
     if (!data) {
       setFailure(true);
     }
-    else if (data) {
+    if (data) {
       setChosenLeague(data);
-      console.log(data.standings[0]);
       setStandings(data.standings[0]);
       setDefaultStandings(data.standings[0]);
     }
@@ -100,7 +97,7 @@ useEffect(() => {
         padding: '10px',
         textAlign: 'center',
       }} className="bg-gray-400">
-        <p>Error fetching standings</p>
+        <p>No standings found</p>
       </div>
     );
   }
@@ -118,8 +115,8 @@ useEffect(() => {
   return (
     <div className='mx-auto border-2 border-gray-400 rounded-md transition ease-in-out duration-500'>
       <div className="overflow-x-auto">
-      <div className="flex justify-center items-center  bg-gray-400 text-center p-4 w-full">
-        <img src={chosenLeague?.logo} alt={chosenLeague?.name} className="w-24 h-24 object-contain bg-gray-400" />
+      <div className="flex-row justify-center items-center  bg-gray-400 text-center p-4 w-full">
+        <img src={chosenLeague?.logo} alt={chosenLeague?.name} className="w-24 h-24 object-contain bg-gray-400 m-auto" />
       </div>
       <table className="table-auto w-full text-sm text-black border-collapse p-2">
       <thead className="bg-gray-400">

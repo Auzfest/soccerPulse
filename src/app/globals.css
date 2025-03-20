@@ -20,12 +20,27 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Audiowide', sans-serif;
+h1, h2, h3, h4, h5, h6, p {
+  font-family: 'Kanit', sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+:root {
+  --main-color: #D1D5DB; /* Default color */
+}
+
+.bg-main {
+  background-color: var(--main-color);
+}
+
+.text-main {
+  color: var(--main-color);
+}
+
+.border-main {
+  border-color: var(--main-color);
 }

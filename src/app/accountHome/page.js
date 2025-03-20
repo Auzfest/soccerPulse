@@ -1,18 +1,17 @@
 "use client";
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Suspense, lazy } from "react";
-import Header from '../components/header';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
+import { Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import Footer from '../components/footer';
+import Header from '../components/header';
 const StandingsWidget = lazy(() => import('../components/standingsWidget'));
 const TeamsWidget = lazy(() => import('../components/teamsWidget'));
 const GamesWidget = lazy(() => import('../components/gamesWidget'));
 const LoadingScreen = lazy(() => import("../components/loadingScreen"));
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import { useMediaQuery } from 'react-responsive';
-import Link from 'next/link';
 
 export default function AccountHome() {
   const router = useRouter();
@@ -52,13 +51,10 @@ export default function AccountHome() {
           setWidgetQueue([StandingsWidget, TeamsWidget, GamesWidget]);
         } catch (error) {
           console.error("Error fetching favorites:", error);
-        } finally {
-          setLoading(false);
         }
       } else if (status === "unauthenticated") {
         router.push('/login');
       }
-      setLoading(false);
     };
 
     fetchFavorites();
@@ -68,8 +64,14 @@ export default function AccountHome() {
     const loadWidgetsSequentially = async () => {
       for (let i = 0; i < widgetQueue.length; i++) {
         const widget = widgetQueue[i];
-        setLoadedWidgets(prev => [...prev, widget]);
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // setLoadedWidgets(prev => [...prev, widget]);
+        setLoadedWidgets(prev => {
+          if (!prev.includes(widget)) {
+              return [...prev, widget];
+          }
+          return prev;
+      });
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     };
 
@@ -77,24 +79,20 @@ export default function AccountHome() {
       loadWidgetsSequentially();
     }
     if (loadedWidgets.length === widgetQueue.length) {
-      setTimeout(() => { setIsWidgetsLoading(false); }, 1000);
+      setTimeout(() => { setIsWidgetsLoading(false); }, 2000);
+      setLoading(false);
     }
   }, [widgetQueue]);
-
-  if (loading || isWidgetsLoading || status === "loading") return (
-    <div className="min-h-screen bg-gray-100">
-      <Header />
-      <LoadingScreen />
-    </div>
-    );
 
   return (
     <div>
       <Header />
+      {loading || isWidgetsLoading || status === "loading" ? (
+        <LoadingScreen />
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-2 md:p-6">
         {/* Teams (First Row on Mobile) */}
-        <div className="order-1 md:order-2 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8 mt-8 md:mt-0">
-          <h1 className="text-xl font-bold mb-4">Teams</h1>
+        <div className="order-1 md:order-2 bg-main rounded-md text-center w-full m-0 lg:w-full p-8 mt-8 md:mt-0">
           {favorites.teams.length > 0 ? (
             loadedWidgets.includes(TeamsWidget) ? (
               <Suspense fallback={<p>Loading...</p>}>
@@ -126,8 +124,7 @@ export default function AccountHome() {
         </div>
   
         {/* Games (Second Row on Mobile) */}
-        <div className="order-2 md:order-3  bg-slate-200 rounded-md text-center w-full m-0 lg:w-full p-8">
-          <h1 className="text-xl font-bold mb-4">Recent and Upcoming Games</h1>
+        <div className="order-2 md:order-3  bg-main rounded-md text-center w-full m-0 lg:w-full p-8">
           {favorites.teams.length > 0 ? (
             loadedWidgets.includes(GamesWidget) ? (
               <div className="h-full">
@@ -142,8 +139,7 @@ export default function AccountHome() {
         </div>
   
         {/* Standings (Third Row on Mobile) */}
-        <div className="order-3 md:order-1 col-span-1 row-span-3 bg-slate-200 rounded-md text-center w-full m-0 lg:w-full md:p-8">
-          <h1 className="text-xl font-bold mb-4">Standings</h1>
+        <div className="order-3 md:order-1 col-span-1 row-span-3 bg-main rounded-md text-center w-full m-0 lg:w-full md:p-8">
           {favorites.leagues.length > 0 ? (
             loadedWidgets.includes(StandingsWidget) ? (
               <Swiper
@@ -170,7 +166,8 @@ export default function AccountHome() {
           )}
         </div>
       </div>
+      )}
       <Footer />
     </div>
-  );  
+  );
 };

@@ -1,14 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { fetchCountries, fetchLeagues, getTeams, getSpecificTeam, toggleSearchBox } from '../../footballapi';
-import Header from '../components/header';
+import { useEffect, useState } from "react";
+import { fetchCountries, fetchLeagues } from '../../footballapi';
 import Footer from '../components/footer';
+import Header from '../components/header';
+import LoadingScreen from "../components/loadingScreen";
 import StandingsWidget from '../components/standingsWidget';
 
 export default function Home() {
   const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [isFavoriteButtonDisabled, setIsFavoriteButtonDisabled] = useState(false);
   const [soccerPulseData, setSoccerPulseData] = useState([]);
@@ -51,12 +53,6 @@ const handleLeagueChange = async (e) => {
     if (status === "authenticated") {
         await getFavorites();
     }
-};
-
-const toggleSearchBox = () => {
-    const searchBox = document.getElementById('search-box');
-    searchBox.classList.toggle('hidden');
-    setIsOpen(!isOpen);
 };
 
 const getFavorites = async () => {
@@ -102,6 +98,7 @@ const getFavorites = async () => {
         const data = await res.json();
         const parsedData = Array.isArray(data) ? data : data.Items || [];
         setSoccerPulseData(parsedData);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setSoccerPulseData([]);
@@ -129,6 +126,15 @@ const getFavorites = async () => {
         console.error("Error adding favorite:", error);
       }
     }; 
+
+    if (loading) {
+      return (
+        <div className="min-h-screen bg-gray-100">
+          <Header />
+          <LoadingScreen />
+        </div>
+      );
+    }
 
   return (
     <div>
@@ -187,7 +193,7 @@ const getFavorites = async () => {
       </div>
     </section>
   </div>
-  <div className="p-16 max-w-4xl lg:mx-auto">
+  <div className="p-16 max-w-4xl lg:mx-auto mb-60">
     <StandingsWidget league={selectedLeague} />
   </div>
   <Footer />

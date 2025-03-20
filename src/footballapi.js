@@ -104,7 +104,6 @@ export const fetchStandings = async (league) => {
       const response = await fetch(url, options);
       const data = await response.json();
       const leagueStandings = data.response[0]?.league || [];
-      console.log(leagueStandings);
       return leagueStandings;
     } catch (error) {
       console.error("Error fetching standings:", error);
@@ -178,7 +177,7 @@ export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
   };
   
   export const getTeam = async({teamId}) => {
-    console.log(teamId);
+    (teamId);
     const url = `https://${process.env.NEXT_PUBLIC_API_HOST}/players/squads?team=${teamId}`;
     const options = {
         method: 'GET',
@@ -194,7 +193,7 @@ export const getFixtures = async ({ leagueId, teamId, from, to, timezone }) => {
             throw new Error(`Failed to fetch players: ${response.statusText}`);
         }
         const data = await response.json();
-        console.log(data);
+        (data);
         return data.response[0]?.players || [];
     } catch (error) {
         console.error("Error fetching players:", error);

@@ -1,5 +1,4 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 
@@ -7,7 +6,7 @@ const client = new DynamoDBClient({ region: 'us-east-2', removeUndefinedValues: 
 
 export async function GET(req, res) {
   const userEmail = req.headers.get('user-email')
-  console.log("Received user-email header:", userEmail); 
+  ("Received user-email header:", userEmail); 
 
   if (!userEmail) {
     console.error("Missing user-email header");
@@ -23,7 +22,7 @@ export async function GET(req, res) {
         ":email": userEmail 
       }
     }));
-    console.log("Query result:", result.Items[0]);
+    ("Query result:", result.Items[0]);
     if (result.Items && result.Items.length > 0) {
       return new Response(JSON.stringify(result.Items), { status: 200 });
     } else {
@@ -38,7 +37,7 @@ export async function GET(req, res) {
 export async function POST(req, res) {
   const { userEmail, newItem } = await req.json();
 
-  console.log("Received user-email and item:", userEmail, newItem);
+  ("Received user-email and item:", userEmail, newItem);
 
   if (!userEmail || !newItem) {
     console.error("Missing user-email or item");
@@ -66,10 +65,10 @@ export async function POST(req, res) {
     }
 
     const userID = queryResult.Items[0].ID;
-    console.log("User ID:", userID);
+    ("User ID:", userID);
 
     let currentFavorites = queryResult.Items[0].Favorites || [[], []];
-    console.log("Favorites before cleanup:", JSON.stringify(currentFavorites));
+    ("Favorites before cleanup:", JSON.stringify(currentFavorites));
 
     // **Remove placeholder zeros**
     currentFavorites = currentFavorites.map(list => 
@@ -81,19 +80,19 @@ export async function POST(req, res) {
       }) : []
     );
 
-    console.log("Favorites after cleanup:", JSON.stringify(currentFavorites));
+    ("Favorites after cleanup:", JSON.stringify(currentFavorites));
 
     if (newItem.teamId) {
       // **Handling Teams (index 1)**
       const leagueId = String(newItem.leagueId);
       const teamId = String(newItem.teamId);
-      console.log("Adding League and Team:", leagueId, teamId);
+      ("Adding League and Team:", leagueId, teamId);
 
       // Append after cleaning
       currentFavorites[1].push([leagueId, teamId]);
     } else if (newItem.leagueId && !newItem.teamId) {
       // **Handling Leagues (index 0)**
-      console.log("Adding League:", newItem.leagueId);
+      ("Adding League:", newItem.leagueId);
       const leagueId = String(newItem.leagueId);
 
       // Append after cleaning
@@ -124,7 +123,7 @@ export async function POST(req, res) {
       })
     );
 
-    console.log("Update successful:", JSON.stringify(result));
+    ("Update successful:", JSON.stringify(result));
     return new Response(JSON.stringify(result), { status: 200 });
 
   } catch (error) {

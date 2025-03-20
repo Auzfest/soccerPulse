@@ -9,7 +9,8 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="bg-gray-300 border-b border-gray-200 px-4 sm:px-6 py-3">
+    <header className="bg-main border-b border-gray-200 pb-3">
+      <div className='bg-gray-300 px-4 sm:px-6 py-2'>
       <div className="grid grid-cols-3 items-center align-middle">
         {/* Logo */}
         <h1 className="text-2xl sm:text-3xl font-bold">
@@ -65,6 +66,8 @@ const Header = () => {
           </div>
         )}
       </div>
+      </div>
+      
 
       {/* Mobile Navigation Menu */}
       {menuOpen && (
