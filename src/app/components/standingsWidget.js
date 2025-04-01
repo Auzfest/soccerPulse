@@ -42,7 +42,7 @@ useEffect(() => {
   const fetchStandingsData = async () => {
 
     const data = await fetchStandings(league);
-    if (!data) {
+    if (data.length === 0) {
       setFailure(true);
     }
     if (data) {

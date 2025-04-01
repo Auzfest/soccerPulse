@@ -6,7 +6,6 @@ const client = new DynamoDBClient({ region: 'us-east-2', removeUndefinedValues: 
 
 export async function GET(req, res) {
   const userEmail = req.headers.get('user-email')
-  ("Received user-email header:", userEmail); 
 
   if (!userEmail) {
     console.error("Missing user-email header");
@@ -37,8 +36,6 @@ export async function GET(req, res) {
 export async function POST(req, res) {
   const { userEmail, newItem } = await req.json();
 
-  ("Received user-email and item:", userEmail, newItem);
-
   if (!userEmail || !newItem) {
     console.error("Missing user-email or item");
     return new Response(JSON.stringify({ error: "Missing user-email or item" }), { status: 400 });
@@ -65,10 +62,8 @@ export async function POST(req, res) {
     }
 
     const userID = queryResult.Items[0].ID;
-    ("User ID:", userID);
 
     let currentFavorites = queryResult.Items[0].Favorites || [[], []];
-    ("Favorites before cleanup:", JSON.stringify(currentFavorites));
 
     // **Remove placeholder zeros**
     currentFavorites = currentFavorites.map(list => 
@@ -80,19 +75,16 @@ export async function POST(req, res) {
       }) : []
     );
 
-    ("Favorites after cleanup:", JSON.stringify(currentFavorites));
 
     if (newItem.teamId) {
       // **Handling Teams (index 1)**
       const leagueId = String(newItem.leagueId);
       const teamId = String(newItem.teamId);
-      ("Adding League and Team:", leagueId, teamId);
 
       // Append after cleaning
       currentFavorites[1].push([leagueId, teamId]);
     } else if (newItem.leagueId && !newItem.teamId) {
       // **Handling Leagues (index 0)**
-      ("Adding League:", newItem.leagueId);
       const leagueId = String(newItem.leagueId);
 
       // Append after cleaning
@@ -123,7 +115,6 @@ export async function POST(req, res) {
       })
     );
 
-    ("Update successful:", JSON.stringify(result));
     return new Response(JSON.stringify(result), { status: 200 });
 
   } catch (error) {
